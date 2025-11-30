@@ -1,1 +1,1 @@
-# ergonimia
+# ergonomia
