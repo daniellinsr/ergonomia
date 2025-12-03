@@ -13,7 +13,7 @@ const auditLog = (tabela) => {
                           req.method === 'DELETE' ? 'DELETE' : null;
 
           if (operacao) {
-            const registroId = data.id || req.params.id || null;
+            const registroId = data?.data?.id || data.id || req.params.id || null;
 
             await pool.query(
               `INSERT INTO auditoria_log 

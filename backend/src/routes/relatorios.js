@@ -10,7 +10,8 @@ router.use(authMiddleware);
 router.get('/inventario-riscos', relatoriosController.inventarioRiscos);
 router.get('/estatisticas-gerais', relatoriosController.estatisticasGerais);
 router.get('/por-setor', relatoriosController.relatorioPorSetor);
-router.get('/por-trabalhador', relatoriosController.relatorioPorTrabalhador);
+router.get('/avaliacoes-por-setor', relatoriosController.relatorioAvaliacoesPorSetor);
+router.get('/avaliacoes-detalhado', relatoriosController.relatorioDetalhadoAvaliacoes);
 router.get('/consolidado', relatoriosController.relatorioConsolidado);
 
 module.exports = router;

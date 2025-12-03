@@ -1,14 +1,14 @@
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  ClipboardCheck, 
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  ClipboardCheck,
   FileText,
   Settings,
   Building,
-  UserCheck,
-  Target
+  Target,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,11 +16,11 @@ export const Sidebar = ({ isOpen }) => {
   const { user } = useAuth();
 
   const menuItems = [
-    { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { path: '/dashboard-avaliacoes', icon: LayoutDashboard, label: 'Dashboard Avaliações' },
+    { path: '/dashboard-planos-acao', icon: BarChart3, label: 'Dashboard Planos de Ação' },
     { path: '/avaliacoes', icon: ClipboardCheck, label: 'Avaliações' },
     { path: '/planos-acao', icon: Target, label: 'Planos de Ação' },
     { path: '/unidades-setores', icon: Building, label: 'Unidades e Setores' },
-    { path: '/trabalhadores', icon: UserCheck, label: 'Trabalhadores' }, // ADICIONAR ESTA LINHA
     { path: '/relatorios', icon: FileText, label: 'Relatórios' },
   ];
 

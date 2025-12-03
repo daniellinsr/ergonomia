@@ -1,40 +1,25 @@
 import { useState, useEffect } from 'react';
 import { X, Search } from 'lucide-react';
-import { trabalhadorService } from '../../services/trabalhadorService';
 import { setorService } from '../../services/setorService';
-import { useAuth } from '../../context/AuthContext';
 
 export const NovaAvaliacao = ({ onClose, onSave }) => {
-  const { user } = useAuth();
-  const [trabalhadores, setTrabalhadores] = useState([]);
   const [setores, setSetores] = useState([]);
-  const [searchTrabalhador, setSearchTrabalhador] = useState('');
+  const [searchSetor, setSearchSetor] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingTrabalhadores, setLoadingTrabalhadores] = useState(true);
+  const [loadingSetores, setLoadingSetores] = useState(true);
   const [formData, setFormData] = useState({
-    trabalhador_id: '',
     setor_id: '',
     tipo_avaliacao: 'AEP',
+    titulo: '',
+    descricao: '',
     observacoes_gerais: '',
   });
   const [errors, setErrors] = useState({});
-  const [trabalhadorSelecionado, setTrabalhadorSelecionado] = useState(null);
+  const [setorSelecionado, setSetorSelecionado] = useState(null);
 
   useEffect(() => {
-    carregarTrabalhadores();
     carregarSetores();
   }, []);
-
-  const carregarTrabalhadores = async () => {
-    try {
-      const data = await trabalhadorService.listar({ limit: 1000 });
-      setTrabalhadores(data.data.filter(t => t.ativo));
-    } catch (error) {
-      console.error('Erro ao carregar trabalhadores:', error);
-    } finally {
-      setLoadingTrabalhadores(false);
-    }
-  };
 
   const carregarSetores = async () => {
     try {
@@ -42,17 +27,18 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
       setSetores(data.data.filter(s => s.ativo));
     } catch (error) {
       console.error('Erro ao carregar setores:', error);
+    } finally {
+      setLoadingSetores(false);
     }
   };
 
-  const handleSelectTrabalhador = (trabalhador) => {
-    setTrabalhadorSelecionado(trabalhador);
+  const handleSelectSetor = (setor) => {
+    setSetorSelecionado(setor);
     setFormData(prev => ({
       ...prev,
-      trabalhador_id: trabalhador.id,
-      setor_id: trabalhador.setor_id || '',
+      setor_id: setor.id,
     }));
-    setErrors(prev => ({ ...prev, trabalhador_id: '' }));
+    setErrors(prev => ({ ...prev, setor_id: '' }));
   };
 
   const handleChange = (e) => {
@@ -64,8 +50,12 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.trabalhador_id) {
-      newErrors.trabalhador_id = 'Selecione um trabalhador';
+    if (!formData.setor_id) {
+      newErrors.setor_id = 'Selecione um setor';
+    }
+
+    if (!formData.titulo || formData.titulo.trim().length < 3) {
+      newErrors.titulo = 'O título deve ter pelo menos 3 caracteres';
     }
 
     setErrors(newErrors);
@@ -87,10 +77,9 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
     }
   };
 
-  const trabalhadoresFiltrados = trabalhadores.filter(t => 
-    t.nome.toLowerCase().includes(searchTrabalhador.toLowerCase()) ||
-    (t.cpf && t.cpf.includes(searchTrabalhador)) ||
-    (t.cargo && t.cargo.toLowerCase().includes(searchTrabalhador.toLowerCase()))
+  const setoresFiltrados = setores.filter(s =>
+    s.nome.toLowerCase().includes(searchSetor.toLowerCase()) ||
+    (s.unidade_nome && s.unidade_nome.toLowerCase().includes(searchSetor.toLowerCase()))
   );
 
   return (
@@ -109,58 +98,54 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Seleção de Trabalhador */}
+          {/* Seleção de Setor */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Trabalhador a ser Avaliado *
+              Setor a ser Avaliado *
             </label>
-            
-            {!trabalhadorSelecionado ? (
+
+            {!setorSelecionado ? (
               <>
                 {/* Campo de busca */}
                 <div className="relative mb-3">
                   <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                   <input
                     type="text"
-                    placeholder="Buscar por nome, CPF ou cargo..."
-                    value={searchTrabalhador}
-                    onChange={(e) => setSearchTrabalhador(e.target.value)}
+                    placeholder="Buscar por nome do setor ou unidade..."
+                    value={searchSetor}
+                    onChange={(e) => setSearchSetor(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                 </div>
 
-                {/* Lista de trabalhadores */}
+                {/* Lista de setores */}
                 <div className="border border-gray-300 rounded-lg max-h-64 overflow-y-auto">
-                  {loadingTrabalhadores ? (
+                  {loadingSetores ? (
                     <div className="p-4 text-center text-gray-500">
-                      Carregando trabalhadores...
+                      Carregando setores...
                     </div>
-                  ) : trabalhadoresFiltrados.length === 0 ? (
+                  ) : setoresFiltrados.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">
-                      Nenhum trabalhador encontrado
+                      Nenhum setor encontrado
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-200">
-                      {trabalhadoresFiltrados.map((trabalhador) => (
+                      {setoresFiltrados.map((setor) => (
                         <button
-                          key={trabalhador.id}
+                          key={setor.id}
                           type="button"
-                          onClick={() => handleSelectTrabalhador(trabalhador)}
+                          onClick={() => handleSelectSetor(setor)}
                           className="w-full p-3 text-left hover:bg-gray-50 transition-colors"
                         >
                           <div className="flex items-center justify-between">
                             <div>
                               <p className="font-semibold text-gray-900">
-                                {trabalhador.nome}
+                                {setor.nome}
                               </p>
-                              <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
-                                {trabalhador.cpf && <span>CPF: {trabalhador.cpf}</span>}
-                                {trabalhador.cargo && <span>• {trabalhador.cargo}</span>}
-                              </div>
-                              {trabalhador.setor_nome && (
+                              {setor.unidade_nome && (
                                 <p className="text-sm text-gray-500 mt-1">
-                                  {trabalhador.setor_nome}
-                                  {trabalhador.unidade_nome && ` - ${trabalhador.unidade_nome}`}
+                                  {setor.unidade_nome}
+                                  {setor.empresa_nome && ` - ${setor.empresa_nome}`}
                                 </p>
                               )}
                             </div>
@@ -172,29 +157,22 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
                 </div>
               </>
             ) : (
-              /* Trabalhador selecionado */
+              /* Setor selecionado */
               <div className="border border-primary rounded-lg p-4 bg-primary bg-opacity-5">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 text-lg">
-                      {trabalhadorSelecionado.nome}
+                      {setorSelecionado.nome}
                     </p>
                     <div className="space-y-1 mt-2 text-sm text-gray-700">
-                      {trabalhadorSelecionado.cpf && (
-                        <p><strong>CPF:</strong> {trabalhadorSelecionado.cpf}</p>
-                      )}
-                      {trabalhadorSelecionado.cargo && (
-                        <p><strong>Cargo:</strong> {trabalhadorSelecionado.cargo}</p>
-                      )}
-                      {trabalhadorSelecionado.funcao && (
-                        <p><strong>Função:</strong> {trabalhadorSelecionado.funcao}</p>
-                      )}
-                      {trabalhadorSelecionado.setor_nome && (
+                      {setorSelecionado.unidade_nome && (
                         <p>
-                          <strong>Setor:</strong> {trabalhadorSelecionado.setor_nome}
-                          {trabalhadorSelecionado.unidade_nome && 
-                            ` - ${trabalhadorSelecionado.unidade_nome}`
-                          }
+                          <strong>Unidade:</strong> {setorSelecionado.unidade_nome}
+                        </p>
+                      )}
+                      {setorSelecionado.descricao && (
+                        <p>
+                          <strong>Descrição:</strong> {setorSelecionado.descricao}
                         </p>
                       )}
                     </div>
@@ -202,8 +180,8 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
                   <button
                     type="button"
                     onClick={() => {
-                      setTrabalhadorSelecionado(null);
-                      setFormData(prev => ({ ...prev, trabalhador_id: '', setor_id: '' }));
+                      setSetorSelecionado(null);
+                      setFormData(prev => ({ ...prev, setor_id: '' }));
                     }}
                     className="text-gray-400 hover:text-gray-600"
                   >
@@ -212,33 +190,43 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
                 </div>
               </div>
             )}
-            
-            {errors.trabalhador_id && (
-              <p className="text-red-500 text-sm mt-1">{errors.trabalhador_id}</p>
+
+            {errors.setor_id && (
+              <p className="text-red-500 text-sm mt-1">{errors.setor_id}</p>
             )}
           </div>
 
-          {/* Setor (opcional, pode substituir o setor do trabalhador) */}
+          {/* Título da Avaliação */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Setor da Avaliação (opcional)
+              Título da Avaliação *
             </label>
-            <select
-              name="setor_id"
-              value={formData.setor_id}
+            <input
+              type="text"
+              name="titulo"
+              value={formData.titulo}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            >
-              <option value="">Usar setor do trabalhador</option>
-              {setores.map((setor) => (
-                <option key={setor.id} value={setor.id}>
-                  {setor.unidade_nome} - {setor.nome}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-gray-500 mt-1">
-              Deixe em branco para usar o setor vinculado ao trabalhador
-            </p>
+              placeholder="Ex: Avaliação ergonômica do posto de trabalho administrativo"
+            />
+            {errors.titulo && (
+              <p className="text-red-500 text-sm mt-1">{errors.titulo}</p>
+            )}
+          </div>
+
+          {/* Descrição */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Descrição (opcional)
+            </label>
+            <textarea
+              name="descricao"
+              value={formData.descricao}
+              onChange={handleChange}
+              rows={3}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Descreva o contexto da avaliação..."
+            />
           </div>
 
           {/* Tipo de Avaliação */}

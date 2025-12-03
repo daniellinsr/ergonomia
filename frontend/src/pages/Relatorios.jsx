@@ -5,9 +5,10 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell, ResponsiveContainer
 } from 'recharts';
 import {
-  FileText, Download, TrendingUp, AlertTriangle,
-  Users, ClipboardCheck, Target, Calendar, Filter
+  Download, TrendingUp, AlertTriangle,
+  ClipboardCheck, Target, Filter, FileCheck
 } from 'lucide-react';
+import { RelatorioDetalhadoAvaliacoes } from '../components/relatorios/RelatorioDetalhadoAvaliacoes';
 
 export function Relatorios() {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ export function Relatorios() {
   const [inventarioRiscos, setInventarioRiscos] = useState(null);
   const [estatisticas, setEstatisticas] = useState(null);
   const [relatorioPorSetor, setRelatorioPorSetor] = useState([]);
-  const [relatorioPorTrabalhador, setRelatorioPorTrabalhador] = useState([]);
+  const [relatorioAvaliacoesPorSetor, setRelatorioAvaliacoesPorSetor] = useState([]);
   
   // Filtros
   const [filtros, setFiltros] = useState({
@@ -33,17 +34,17 @@ export function Relatorios() {
   const carregarDados = async () => {
     setLoading(true);
     try {
-      const [inventario, stats, porSetor, porTrabalhador] = await Promise.all([
+      const [inventario, stats, porSetor, avaliacoesPorSetor] = await Promise.all([
         relatoriosService.inventarioRiscos(filtros),
         relatoriosService.estatisticasGerais(),
         relatoriosService.relatorioPorSetor(),
-        relatoriosService.relatorioPorTrabalhador(filtros),
+        relatoriosService.relatorioAvaliacoesPorSetor(filtros),
       ]);
-      
+
       setInventarioRiscos(inventario.data);
       setEstatisticas(stats.data);
       setRelatorioPorSetor(porSetor.data);
-      setRelatorioPorTrabalhador(porTrabalhador.data);
+      setRelatorioAvaliacoesPorSetor(avaliacoesPorSetor.data);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       alert('Erro ao carregar dados dos relatórios');
@@ -199,8 +200,8 @@ export function Relatorios() {
           <h2>📊 Estatísticas Gerais</h2>
           <div class="stats-grid">
             <div class="stat-card">
-              <div class="stat-value">${dados.stats?.total_trabalhadores || 0}</div>
-              <div class="stat-label">Trabalhadores</div>
+              <div class="stat-value">${dados.stats?.total_setores || 0}</div>
+              <div class="stat-label">Setores</div>
             </div>
             <div class="stat-card">
               <div class="stat-value">${dados.stats?.total_avaliacoes || 0}</div>
@@ -227,9 +228,9 @@ export function Relatorios() {
             <thead>
               <tr>
                 <th>Data</th>
-                <th>Trabalhador</th>
-                <th>Cargo</th>
                 <th>Setor</th>
+                <th>Título da Avaliação</th>
+                <th>Tipo</th>
                 <th>Nível</th>
               </tr>
             </thead>
@@ -237,9 +238,9 @@ export function Relatorios() {
               ${dados.riscos.map(risco => `
                 <tr>
                   <td>${new Date(risco.data_avaliacao).toLocaleDateString('pt-BR')}</td>
-                  <td>${risco.trabalhador}</td>
-                  <td>${risco.cargo}</td>
-                  <td>${risco.setor || 'N/A'}</td>
+                  <td>${risco.setor_nome || 'N/A'}</td>
+                  <td>${risco.titulo || 'N/A'}</td>
+                  <td>${risco.tipo_avaliacao || 'N/A'}</td>
                   <td><span class="badge badge-${(risco.classificacao_risco || '').toLowerCase()}">${risco.classificacao_risco || 'N/A'}</span></td>
                 </tr>
               `).join('')}
@@ -383,16 +384,29 @@ export function Relatorios() {
             </div>
           </button>
           <button
-            onClick={() => setActiveTab('trabalhadores')}
+            onClick={() => setActiveTab('avaliacoes')}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'trabalhadores'
+              activeTab === 'avaliacoes'
                 ? 'border-indigo-500 text-indigo-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
             <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Por Trabalhador
+              <ClipboardCheck className="w-5 h-5" />
+              Avaliações por Setor
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab('relatorio-detalhado')}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'relatorio-detalhado'
+                ? 'border-indigo-500 text-indigo-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <FileCheck className="w-5 h-5" />
+              Relatório de Avaliações
             </div>
           </button>
         </nav>
@@ -406,10 +420,10 @@ export function Relatorios() {
             <div className="bg-white p-6 rounded-lg shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Total de Trabalhadores</p>
-                  <p className="text-3xl font-bold text-gray-900">{estatisticas.trabalhadores}</p>
+                  <p className="text-sm text-gray-600">Total de Setores</p>
+                  <p className="text-3xl font-bold text-gray-900">{estatisticas.setores || 0}</p>
                 </div>
-                <Users className="w-12 h-12 text-blue-500" />
+                <Target className="w-12 h-12 text-blue-500" />
               </div>
             </div>
 
@@ -603,9 +617,9 @@ export function Relatorios() {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trabalhador</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Setor</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">GSE/Setor</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Título</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nível</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Observações</th>
                   </tr>
@@ -617,13 +631,13 @@ export function Relatorios() {
                         {new Date(risco.data_avaliacao).toLocaleDateString('pt-BR')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {risco.trabalhador_nome}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {risco.cargo}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {risco.setor_nome || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {risco.titulo || 'N/A'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {risco.tipo_avaliacao || 'N/A'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -655,8 +669,8 @@ export function Relatorios() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Setor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trabalhadores</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">GSE/Setor</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Unidade</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avaliações</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Riscos Intoleráveis</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Riscos Substanciais</th>
@@ -670,7 +684,7 @@ export function Relatorios() {
                       {setor.setor_nome}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {setor.total_trabalhadores}
+                      {setor.unidade_nome || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {setor.total_avaliacoes}
@@ -698,55 +712,55 @@ export function Relatorios() {
         </div>
       )}
 
-      {/* Por Trabalhador */}
-      {activeTab === 'trabalhadores' && (
+      {/* Avaliações por Setor */}
+      {activeTab === 'avaliacoes' && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Setor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avaliações</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Última Avaliação</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maior Risco</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">GSE/Setor</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Título</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nível de Risco</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {relatorioPorTrabalhador.map((trabalhador) => (
-                  <tr key={trabalhador.id}>
+                {relatorioAvaliacoesPorSetor.map((avaliacao) => (
+                  <tr key={avaliacao.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {trabalhador.nome}
+                      {avaliacao.setor_nome}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">
+                      {avaliacao.titulo}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {trabalhador.cargo}
+                      {avaliacao.tipo_avaliacao}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {trabalhador.setor_nome || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {trabalhador.total_avaliacoes}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {trabalhador.ultima_avaliacao 
-                        ? new Date(trabalhador.ultima_avaliacao).toLocaleDateString('pt-BR')
+                      {avaliacao.data_avaliacao
+                        ? new Date(avaliacao.data_avaliacao).toLocaleDateString('pt-BR')
                         : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {trabalhador.maior_risco ? (
+                      {avaliacao.classificacao_risco ? (
                         <span
                           className="px-2 py-1 text-xs font-semibold rounded-full"
                           style={{
-                            backgroundColor: `${CORES_RISCO[trabalhador.maior_risco] || '#6B7280'}20`,
-                            color: CORES_RISCO[trabalhador.maior_risco] || '#6B7280',
+                            backgroundColor: `${CORES_RISCO[avaliacao.classificacao_risco] || '#6B7280'}20`,
+                            color: CORES_RISCO[avaliacao.classificacao_risco] || '#6B7280',
                           }}
                         >
-                          {traduzirNivelRisco(trabalhador.maior_risco)}
+                          {traduzirNivelRisco(avaliacao.classificacao_risco)}
                         </span>
                       ) : (
                         <span className="text-gray-400">N/A</span>
                       )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {avaliacao.status || 'Em andamento'}
                     </td>
                   </tr>
                 ))}
@@ -754,6 +768,11 @@ export function Relatorios() {
             </table>
           </div>
         </div>
+      )}
+
+      {/* Relatório Detalhado de Avaliações */}
+      {activeTab === 'relatorio-detalhado' && (
+        <RelatorioDetalhadoAvaliacoes />
       )}
     </div>
   );

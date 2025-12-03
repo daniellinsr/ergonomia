@@ -1,0 +1,107 @@
+# Configuração Estática do Traefik v3.0
+# Sistema de Gestão Ergonômica
+
+# ============================================
+# Global
+# ============================================
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+# ============================================
+# API e Dashboard
+# ============================================
+api:
+  dashboard: true
+  insecure: false  # Dashboard via HTTPS apenas
+
+# ============================================
+# Entry Points (Portas de entrada)
+# ============================================
+entryPoints:
+  # HTTP (porta 80)
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+
+  # HTTPS (porta 443)
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+        domains:
+          - main: helthcorp.com.br
+            sans:
+              - "*.helthcorp.com.br"
+              - ergonomia.helthcorp.com.br
+
+# ============================================
+# Certificados SSL - Let's Encrypt
+# ============================================
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: ${LETSENCRYPT_EMAIL:-admin@helthcorp.com.br}
+      storage: /certificates/acme.json
+      caServer: https://acme-v02.api.letsencrypt.org/directory
+      # Para testes, use: https://acme-staging-v02.api.letsencrypt.org/directory
+
+      # HTTP Challenge (recomendado)
+      httpChallenge:
+        entryPoint: web
+
+      # DNS Challenge (use se tiver wildcard)
+      # dnsChallenge:
+      #   provider: cloudflare
+      #   delayBeforeCheck: 0
+
+# ============================================
+# Providers
+# ============================================
+providers:
+  # Docker - Autodescoberta de containers
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false  # Apenas containers com traefik.enable=true
+    network: traefik-public
+    watch: true
+
+  # Configurações dinâmicas via arquivo
+  file:
+    directory: /dynamic
+    watch: true
+
+# ============================================
+# Logs
+# ============================================
+log:
+  level: INFO  # DEBUG, INFO, WARN, ERROR
+  format: common  # common, json
+  filePath: /var/log/traefik/traefik.log
+
+# Access logs
+accessLog:
+  filePath: /var/log/traefik/access.log
+  format: common
+  bufferingSize: 100
+
+# ============================================
+# Métricas (Opcional - para Prometheus)
+# ============================================
+# metrics:
+#   prometheus:
+#     addEntryPointsLabels: true
+#     addServicesLabels: true
+#     entryPoint: metrics
+
+# ============================================
+# Ping (Health check)
+# ============================================
+ping:
+  entryPoint: websecure

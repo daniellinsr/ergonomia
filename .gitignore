@@ -1,0 +1,234 @@
+# ============================================
+# .gitignore - Sistema de Gestão Ergonômica
+# ============================================
+
+# ============================================
+# Arquivos de Ambiente (NUNCA COMMITAR!)
+# ============================================
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+*.env
+!.env.example
+!.env.docker.example
+!.env.traefik.example
+!.env.production.example
+
+# ============================================
+# Node.js / NPM
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# Build / Dist
+# ============================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.vuepress/dist/
+
+# ============================================
+# Frontend (React/Vite)
+# ============================================
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+frontend/coverage/
+
+# ============================================
+# Backend
+# ============================================
+backend/dist/
+backend/build/
+backend/coverage/
+backend/.nyc_output/
+
+# ============================================
+# Docker
+# ============================================
+# Certificados SSL gerados
+traefik/certificates/acme.json
+traefik/certificates/*.pem
+traefik/certificates/*.crt
+traefik/certificates/*.key
+
+# Logs do Traefik
+traefik/logs/
+
+# ============================================
+# Backups e Dados Sensíveis
+# ============================================
+*.sql
+*.sql.gz
+*.dump
+*.backup
+backup_*
+backups/
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# IDEs e Editores
+# ============================================
+# VSCode
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.*.swp
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# Sistemas Operacionais
+# ============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# Temporários e Cache
+# ============================================
+*.tmp
+*.temp
+*.cache
+.temp/
+.tmp/
+tmp/
+temp/
+
+# ============================================
+# Testing e Coverage
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+test-results/
+junit.xml
+
+# ============================================
+# Arquivos Comprimidos (gerados)
+# ============================================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+ergonomia.zip
+ergonomia-*.zip
+
+# ============================================
+# Certificados e Chaves (NUNCA COMMITAR!)
+# ============================================
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+ssl/
+certs/
+certificates/
+
+# ============================================
+# Uploads e Assets Dinâmicos
+# ============================================
+uploads/
+public/uploads/
+storage/
+
+# ============================================
+# Documentos Gerados
+# ============================================
+*.pdf
+*.doc
+*.docx
+relatorios/
+
+# ============================================
+# Misc
+# ============================================
+.env.backup
+.vscode-test/
+.eslintcache
+.prettierignore
+.stylelintcache

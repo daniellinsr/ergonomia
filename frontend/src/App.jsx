@@ -3,11 +3,11 @@ import { AuthProvider } from './context/AuthContext';
 import { Login } from './components/auth/Login';
 import { PrivateRoute } from './components/auth/PrivateRoute';
 import { Layout } from './components/layout/Layout';
-import { Dashboard } from './pages/Dashboard';
+import { DashboardAvaliacoes } from './pages/DashboardAvaliacoes';
+import { DashboardPlanosAcao } from './pages/DashboardPlanosAcao';
 import { Empresas } from './pages/Empresas';
 import { Usuarios } from './pages/Usuarios';
 import { UnidadesSetores } from './pages/UnidadesSetores';
-import { Trabalhadores } from './pages/Trabalhadores';
 import { Avaliacoes } from './pages/Avaliacoes';
 import { PreencherAvaliacao } from './pages/PreencherAvaliacao';
 import { PlanosAcao } from './pages/PlanosAcao';
@@ -30,8 +30,9 @@ function App() {
               <Layout />
             </PrivateRoute>
           }>
-            <Route index element={<Navigate to="/dashboard" />} />
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route index element={<Navigate to="/dashboard-avaliacoes" />} />
+            <Route path="dashboard-avaliacoes" element={<DashboardAvaliacoes />} />
+            <Route path="dashboard-planos-acao" element={<DashboardPlanosAcao />} />
             <Route path="empresas" element={
               <PrivateRoute requireAdmin={true}>
                 <Empresas />
@@ -48,12 +49,6 @@ function App() {
               <UnidadesSetores />
               </PrivateRoute>
               } />
-            
-            <Route path="trabalhadores" element={
-              <PrivateRoute>
-                <Trabalhadores />
-              </PrivateRoute>
-            } />
 
             <Route path="avaliacoes" element={
               <PrivateRoute>
@@ -81,7 +76,7 @@ function App() {
 
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="*" element={<Navigate to="/dashboard-avaliacoes" />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -92,7 +92,7 @@ export const Avaliacoes = () => {
   };
 
   const handleDelete = async (avaliacao) => {
-    if (!confirm(`Tem certeza que deseja DELETAR a avaliação de "${avaliacao.trabalhador_nome}"?`)) {
+    if (!confirm(`Tem certeza que deseja DELETAR a avaliação "${avaliacao.titulo}"?`)) {
       return;
     }
 
@@ -145,7 +145,7 @@ export const Avaliacoes = () => {
             <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar por trabalhador, setor..."
+              placeholder="Buscar por título, setor..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
@@ -258,7 +258,10 @@ export const Avaliacoes = () => {
                 <thead className="bg-secondary-light">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                      Trabalhador
+                      Título
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                      Tipo
                     </th>
                     {isAdmin && (
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
@@ -291,19 +294,19 @@ export const Avaliacoes = () => {
                       <td className="px-6 py-4">
                         <div>
                           <p className="font-semibold text-gray-900">
-                            {avaliacao.trabalhador_nome}
+                            {avaliacao.titulo || 'Sem título'}
                           </p>
-                          {avaliacao.trabalhador_cpf && (
-                            <p className="text-sm text-gray-500">
-                              CPF: {avaliacao.trabalhador_cpf}
-                            </p>
-                          )}
-                          {avaliacao.trabalhador_cargo && (
-                            <p className="text-sm text-gray-500">
-                              {avaliacao.trabalhador_cargo}
+                          {avaliacao.descricao && (
+                            <p className="text-sm text-gray-500 max-w-md truncate">
+                              {avaliacao.descricao}
                             </p>
                           )}
                         </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
+                          {avaliacao.tipo_avaliacao || 'AEP'}
+                        </span>
                       </td>
                       {isAdmin && (
                         <td className="px-6 py-4 text-sm text-gray-700">
@@ -375,12 +378,12 @@ export const Avaliacoes = () => {
               {avaliacoes.map((avaliacao) => (
                 <div key={avaliacao.id} className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">
-                        {avaliacao.trabalhador_nome}
+                        {avaliacao.titulo || 'Sem título'}
                       </h3>
-                      <p className="text-sm text-gray-500">
-                        {formatDate(avaliacao.data_avaliacao)}
+                      <p className="text-xs text-gray-500 mt-1">
+                        {avaliacao.tipo_avaliacao || 'AEP'} • {formatDate(avaliacao.data_avaliacao)}
                       </p>
                     </div>
                     <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(avaliacao.status)}`}>
@@ -397,6 +400,7 @@ export const Avaliacoes = () => {
                     {avaliacao.setor_nome && (
                       <p className="text-gray-600">
                         <strong>Setor:</strong> {avaliacao.setor_nome}
+                        {avaliacao.unidade_nome && ` (${avaliacao.unidade_nome})`}
                       </p>
                     )}
                     <p className="text-gray-600">

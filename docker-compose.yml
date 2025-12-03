@@ -1,0 +1,187 @@
+version: '3.8'
+
+# Redes
+networks:
+  ergonomia-network:
+    driver: bridge
+
+# Volumes persistentes
+volumes:
+  postgres-data:
+    driver: local
+  postgres-backups:
+    driver: local
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:18-alpine
+    container_name: ergonomia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ergonomia_db}
+      POSTGRES_USER: ${DB_USER:-ergonomia_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Database password required}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=pt_BR.UTF-8"
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-backups:/backups
+      - ./backend/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - ergonomia-network
+    ports:
+      - "5432:5432"  # Expor porta apenas para desenvolvimento/debug (remover em produção)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ergonomia_user} -d ${DB_NAME:-ergonomia_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ergonomia-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-ergonomia_db}
+      DB_USER: ${DB_USER:-ergonomia_user}
+      DB_PASSWORD: ${DB_PASSWORD:?Database password required}
+      JWT_SECRET: ${JWT_SECRET:?JWT secret required}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT refresh secret required}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-200}
+      TZ: America/Sao_Paulo
+    networks:
+      - ergonomia-network
+    ports:
+      - "3001:3001"  # Expor apenas se não usar proxy reverso
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Frontend (React + Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: ergonomia-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      TZ: America/Sao_Paulo
+    networks:
+      - ergonomia-network
+    ports:
+      - "80:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # Nginx Proxy Reverso (Opcional - usar se quiser SSL/TLS terminado aqui)
+  # Descomente se quiser usar com Let's Encrypt via nginx-proxy
+  # nginx-proxy:
+  #   image: nginxproxy/nginx-proxy:alpine
+  #   container_name: ergonomia-nginx-proxy
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - /var/run/docker.sock:/tmp/docker.sock:ro
+  #     - ./certs:/etc/nginx/certs:ro
+  #     - ./vhost:/etc/nginx/vhost.d
+  #     - ./html:/usr/share/nginx/html
+  #   networks:
+  #     - ergonomia-network
+  #   environment:
+  #     ENABLE_IPV6: "true"
+
+  # Let's Encrypt Companion (Opcional - para SSL automático)
+  # letsencrypt:
+  #   image: nginxproxy/acme-companion
+  #   container_name: ergonomia-letsencrypt
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - nginx-proxy
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #     - ./certs:/etc/nginx/certs:rw
+  #     - ./vhost:/etc/nginx/vhost.d
+  #     - ./html:/usr/share/nginx/html
+  #     - ./acme:/etc/acme.sh
+  #   networks:
+  #     - ergonomia-network
+  #   environment:
+  #     DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+  # Backup automático do PostgreSQL (Opcional)
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:18-alpine
+    container_name: ergonomia-backup
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${DB_NAME:-ergonomia_db}
+      POSTGRES_USER: ${DB_USER:-ergonomia_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_EXTRA_OPTS: -Z9 --schema=public --blobs
+      SCHEDULE: "@daily"  # Diário à meia-noite
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres-backups:/backups
+    networks:
+      - ergonomia-network

@@ -63,9 +63,6 @@ app.use('/api/unidades', unidadesRoutes);
 const setoresRoutes = require('./routes/setores');
 app.use('/api/setores', setoresRoutes);
 
-const trabalhadoresRoutes = require('./routes/trabalhadores');
-app.use('/api/trabalhadores', trabalhadoresRoutes);
-
 const avaliacoesRoutes = require('./routes/avaliacoes');
 app.use('/api/avaliacoes', avaliacoesRoutes);
 

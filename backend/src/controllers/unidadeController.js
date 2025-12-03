@@ -16,16 +16,16 @@ const unidadeController = {
       const offset = (page - 1) * limit;
 
       let query = `
-        SELECT 
+        SELECT
           u.*,
           e.razao_social,
           e.nome_fantasia,
           COUNT(DISTINCT s.id) as total_setores,
-          COUNT(DISTINCT t.id) as total_trabalhadores
+          COUNT(DISTINCT a.id) as total_avaliacoes
         FROM unidades u
         JOIN empresas e ON u.empresa_id = e.id
         LEFT JOIN setores s ON u.id = s.unidade_id AND s.ativo = true
-        LEFT JOIN trabalhadores t ON s.id = t.setor_id AND t.ativo = true
+        LEFT JOIN avaliacoes_ergonomicas a ON s.id = a.setor_id
       `;
 
       const params = [];

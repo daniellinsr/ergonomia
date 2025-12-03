@@ -26,15 +26,16 @@ const plano5W2HController = {
       const empresaId = req.user.empresa_id;
 
       let query = `
-        SELECT 
+        SELECT
           p.*,
           u.nome as criado_por_nome,
           a.id as avaliacao_id,
-          t.nome as trabalhador_nome
+          a.titulo as avaliacao_titulo,
+          s.nome as setor_nome
         FROM planos_5w2h p
         LEFT JOIN usuarios u ON p.criado_por = u.id
         LEFT JOIN avaliacoes_ergonomicas a ON p.avaliacao_id = a.id
-        LEFT JOIN trabalhadores t ON a.trabalhador_id = t.id
+        LEFT JOIN setores s ON a.setor_id = s.id
         WHERE p.empresa_id = $1
       `;
 
@@ -117,15 +118,16 @@ const plano5W2HController = {
       const empresaId = req.user.empresa_id;
 
       const result = await pool.query(
-        `SELECT 
+        `SELECT
           p.*,
           u.nome as criado_por_nome,
           a.id as avaliacao_id,
-          t.nome as trabalhador_nome
+          a.titulo as avaliacao_titulo,
+          s.nome as setor_nome
         FROM planos_5w2h p
         LEFT JOIN usuarios u ON p.criado_por = u.id
         LEFT JOIN avaliacoes_ergonomicas a ON p.avaliacao_id = a.id
-        LEFT JOIN trabalhadores t ON a.trabalhador_id = t.id
+        LEFT JOIN setores s ON a.setor_id = s.id
         WHERE p.id = $1 AND p.empresa_id = $2`,
         [id, empresaId]
       );

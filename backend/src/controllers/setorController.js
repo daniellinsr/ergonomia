@@ -16,17 +16,17 @@ const setorController = {
       const offset = (page - 1) * limit;
 
       let query = `
-        SELECT 
+        SELECT
           s.*,
           u.nome as unidade_nome,
           u.empresa_id,
           e.razao_social,
           e.nome_fantasia,
-          COUNT(DISTINCT t.id) as total_trabalhadores
+          COUNT(DISTINCT a.id) as total_avaliacoes
         FROM setores s
         JOIN unidades u ON s.unidade_id = u.id
         JOIN empresas e ON u.empresa_id = e.id
-        LEFT JOIN trabalhadores t ON s.id = t.setor_id AND t.ativo = true
+        LEFT JOIN avaliacoes_ergonomicas a ON s.id = a.setor_id
       `;
 
       const params = [];
@@ -217,15 +217,15 @@ const setorController = {
     try {
       const { id } = req.params;
 
-      // Verificar se tem trabalhadores
-      const trabalhadoresCheck = await pool.query(
-        'SELECT COUNT(*) as total FROM trabalhadores WHERE setor_id = $1',
+      // Verificar se tem avaliações
+      const avaliacoesCheck = await pool.query(
+        'SELECT COUNT(*) as total FROM avaliacoes_ergonomicas WHERE setor_id = $1',
         [id]
       );
 
-      if (parseInt(trabalhadoresCheck.rows[0].total) > 0) {
-        return res.status(400).json({ 
-          error: 'Não é possível deletar setor com trabalhadores cadastrados' 
+      if (parseInt(avaliacoesCheck.rows[0].total) > 0) {
+        return res.status(400).json({
+          error: 'Não é possível deletar setor com avaliações cadastradas'
         });
       }
 
