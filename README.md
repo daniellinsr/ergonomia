@@ -79,12 +79,23 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ## 📚 Documentação de Deploy
 
-### Guias Disponíveis
+### ⭐ Recomendado: Portainer + Traefik
+
+Se você já tem **Traefik e Portainer** rodando no seu servidor:
+
+**📄 [DEPLOY-PORTAINER.md](DEPLOY-PORTAINER.md)** - Deploy via Portainer com Traefik existente
+
+Este guia assume que você já tem:
+- ✅ Traefik rodando com rede externa `web`
+- ✅ Portainer instalado e configurado
+- ✅ Domínio apontando para o servidor
+
+### Outras Opções de Deploy
 
 | Método | Guia Rápido | Guia Completo |
 |--------|-------------|---------------|
-| **Traefik** ⭐ | [QUICK-START-TRAEFIK.md](QUICK-START-TRAEFIK.md) | [DEPLOYMENT-TRAEFIK.md](DEPLOYMENT-TRAEFIK.md) |
-| **Portainer** | [QUICK-START-PORTAINER.md](QUICK-START-PORTAINER.md) | [DEPLOYMENT-PORTAINER.md](DEPLOYMENT-PORTAINER.md) |
+| **Traefik do Zero** | [QUICK-START-TRAEFIK.md](QUICK-START-TRAEFIK.md) | [DEPLOYMENT-TRAEFIK.md](DEPLOYMENT-TRAEFIK.md) |
+| **Portainer do Zero** | [QUICK-START-PORTAINER.md](QUICK-START-PORTAINER.md) | [DEPLOYMENT-PORTAINER.md](DEPLOYMENT-PORTAINER.md) |
 | **Tradicional** | [QUICK-START-PRODUCTION.md](QUICK-START-PRODUCTION.md) | [DEPLOYMENT.md](DEPLOYMENT.md) |
 
 ### Comparação
@@ -97,7 +108,32 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 ## 🚀 Deploy Rápido
 
-### Com Traefik (Recomendado)
+### Com Traefik + Portainer Existente (Mais Fácil) ⭐
+
+Se você já tem Traefik e Portainer rodando:
+
+```bash
+# 1. No servidor, clonar repositório
+git clone https://github.com/daniellinsr/ergonomia.git /opt/apps/ergonomia
+cd /opt/apps/ergonomia
+
+# 2. Configurar .env
+cp .env.docker.example .env
+nano .env  # Preencher credenciais
+
+# 3. No Portainer
+# - Criar Stack "ergonomia"
+# - Apontar para o repositório Git
+# - Ou fazer upload do docker-compose.yml
+# - Deploy!
+
+# 4. Executar migrations
+docker exec -i ergonomia-postgres psql -U ergonomia_user -d ergonomia_db < backend/migrations/001_initial_schema.sql
+```
+
+**Guia completo**: [DEPLOY-PORTAINER.md](DEPLOY-PORTAINER.md)
+
+### Instalando Traefik do Zero
 
 ```bash
 # 1. Clonar repositório no servidor
