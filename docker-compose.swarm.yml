@@ -3,7 +3,8 @@ version: '3.8'
 networks:
   ergonomia-network:
     driver: overlay
-  web:
+    attachable: true
+  web-swarm:
     external: true
 
 volumes:
@@ -58,15 +59,17 @@ services:
     networks:
       - ergonomia-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 40s
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == manager
+      endpoint_mode: vip
 
   frontend:
     image: ergonomia-frontend:latest
@@ -76,26 +79,29 @@ services:
       TZ: America/Sao_Paulo
     networks:
       - ergonomia-network
-      - web
+      - web-swarm
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
     deploy:
       replicas: 1
       placement:
         constraints:
           - node.role == manager
+      endpoint_mode: vip
       labels:
         - "traefik.enable=true"
-        - "traefik.docker.network=web"
+        - "traefik.docker.network=web-swarm"
         - "traefik.http.routers.ergonomia.rule=Host(`${TRAEFIK_HOST}`)"
         - "traefik.http.routers.ergonomia.entrypoints=websecure"
         - "traefik.http.routers.ergonomia.tls=true"
         - "traefik.http.routers.ergonomia.tls.certresolver=lets-encrypt"
         - "traefik.http.services.ergonomia.loadbalancer.server.port=80"
         - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.scheme=https"
+        - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.permanent=true"
         - "traefik.http.routers.ergonomia-http.rule=Host(`${TRAEFIK_HOST}`)"
         - "traefik.http.routers.ergonomia-http.entrypoints=web"
         - "traefik.http.routers.ergonomia-http.middlewares=ergonomia-redirect"
