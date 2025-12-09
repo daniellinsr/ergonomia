@@ -83,12 +83,14 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 Se você já tem **Traefik e Portainer** rodando no seu servidor:
 
-**📄 [DEPLOY-PORTAINER.md](DEPLOY-PORTAINER.md)** - Deploy via Portainer com Traefik existente
+**📄 [DEPLOY-PORTAINER-ATUALIZADO.md](DEPLOY-PORTAINER-ATUALIZADO.md)** - Deploy via Portainer (Upload Manual)
 
 Este guia assume que você já tem:
 - ✅ Traefik rodando com rede externa `web`
 - ✅ Portainer instalado e configurado
 - ✅ Domínio apontando para o servidor
+
+**Tempo:** ~10 minutos | **Dificuldade:** ⭐⭐☆☆☆
 
 ### Outras Opções de Deploy
 
@@ -112,26 +114,40 @@ Este guia assume que você já tem:
 
 Se você já tem Traefik e Portainer rodando:
 
+#### Primeiro: Identificar seu ambiente
+
 ```bash
-# 1. No servidor, clonar repositório
+# Via SSH no servidor
+docker info | grep -i swarm
+
+# Se retornar "Swarm: active" → Use guia Swarm
+# Se retornar "Swarm: inactive" → Use guia Standalone
+```
+
+#### Passos básicos:
+
+```bash
+# 1. No servidor, clonar repositório e fazer build
 git clone https://github.com/daniellinsr/ergonomia.git /opt/apps/ergonomia
 cd /opt/apps/ergonomia
 
-# 2. Configurar .env
-cp .env.docker.example .env
-nano .env  # Preencher credenciais
+# 2. Build das imagens
+docker build -t ergonomia-backend:latest backend/
+docker build -t ergonomia-frontend:latest --build-arg VITE_API_URL=/api frontend/
 
-# 3. No Portainer
-# - Criar Stack "ergonomia"
-# - Apontar para o repositório Git
-# - Ou fazer upload do docker-compose.yml
-# - Deploy!
+# 3. No Portainer: Criar Stack com Web editor
+#    - Colar compose do guia correspondente
+#    - Adicionar variáveis de ambiente
+#    - Deploy!
 
 # 4. Executar migrations
 docker exec -i ergonomia-postgres psql -U ergonomia_user -d ergonomia_db < backend/migrations/001_initial_schema.sql
 ```
 
-**Guia completo**: [DEPLOY-PORTAINER.md](DEPLOY-PORTAINER.md)
+**Guias disponíveis:**
+- 📄 **[QUAL-GUIA-SEGUIR.md](QUAL-GUIA-SEGUIR.md)** - Identificar ambiente e escolher guia
+- 📄 **[DEPLOY-PORTAINER-SWARM.md](DEPLOY-PORTAINER-SWARM.md)** - Para Docker Swarm
+- 📄 **[DEPLOY-PORTAINER-ATUALIZADO.md](DEPLOY-PORTAINER-ATUALIZADO.md)** - Para Docker Standalone
 
 ### Instalando Traefik do Zero
 

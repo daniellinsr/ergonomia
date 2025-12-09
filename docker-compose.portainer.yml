@@ -1,0 +1,135 @@
+version: '3.8'
+
+# Redes
+networks:
+  # Rede interna para comunicação entre serviços
+  ergonomia-network:
+    driver: bridge
+
+  # Rede externa do Traefik (já existente no servidor)
+  web:
+    external: true
+
+# Volumes persistentes
+volumes:
+  postgres-data:
+    driver: local
+  postgres-backups:
+    driver: local
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ergonomia_db}
+      POSTGRES_USER: ${DB_USER:-ergonomia_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Database password required}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=pt_BR.UTF-8"
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-backups:/backups
+    networks:
+      - ergonomia-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-ergonomia_user} -d ${DB_NAME:-ergonomia_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Backend API
+  backend:
+    image: daniellinsr/ergonomia-backend:latest
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-ergonomia_db}
+      DB_USER: ${DB_USER:-ergonomia_user}
+      DB_PASSWORD: ${DB_PASSWORD:?Database password required}
+      JWT_SECRET: ${JWT_SECRET:?JWT secret required}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-8h}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT refresh secret required}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-200}
+      TZ: America/Sao_Paulo
+    networks:
+      - ergonomia-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (React + Nginx)
+  frontend:
+    image: daniellinsr/ergonomia-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      TZ: America/Sao_Paulo
+    networks:
+      - ergonomia-network
+      - web
+    labels:
+      # Habilitar Traefik para este container
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+
+      # Configuração do roteador HTTPS
+      - "traefik.http.routers.ergonomia.rule=Host(`${TRAEFIK_HOST:-ergonomia.helthcorp.com.br}`)"
+      - "traefik.http.routers.ergonomia.entrypoints=websecure"
+      - "traefik.http.routers.ergonomia.tls=true"
+      - "traefik.http.routers.ergonomia.tls.certresolver=lets-encrypt"
+
+      # Service configuration
+      - "traefik.http.services.ergonomia.loadbalancer.server.port=80"
+
+      # Middleware para redirecionar HTTP para HTTPS
+      - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.permanent=true"
+
+      # Roteador HTTP (redireciona para HTTPS)
+      - "traefik.http.routers.ergonomia-http.rule=Host(`${TRAEFIK_HOST:-ergonomia.helthcorp.com.br}`)"
+      - "traefik.http.routers.ergonomia-http.entrypoints=web"
+      - "traefik.http.routers.ergonomia-http.middlewares=ergonomia-redirect"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Backup automático do PostgreSQL
+  postgres-backup:
+    image: prodrigestivill/postgres-backup-local:18-alpine
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${DB_NAME:-ergonomia_db}
+      POSTGRES_USER: ${DB_USER:-ergonomia_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_EXTRA_OPTS: -Z9 --schema=public --blobs
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+      HEALTHCHECK_PORT: 8080
+      TZ: America/Sao_Paulo
+    volumes:
+      - postgres-backups:/backups
+    networks:
+      - ergonomia-network
