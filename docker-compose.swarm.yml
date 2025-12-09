@@ -80,6 +80,12 @@ services:
     networks:
       - ergonomia-network
       - web-swarm
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     deploy:
       replicas: 1
       placement:
