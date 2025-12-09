@@ -20,8 +20,11 @@ RUN npm ci && npm cache clean --force
 # Copiar código fonte
 COPY . .
 
-# Criar build de produção
-RUN npm run build
+# Argumento para URL da API
+ARG VITE_API_URL=/api
+
+# Criar build de produção com a variável de ambiente
+RUN VITE_API_URL=$VITE_API_URL npm run build
 
 # Estágio 2: Servir com Nginx
 FROM nginx:1.25-alpine
