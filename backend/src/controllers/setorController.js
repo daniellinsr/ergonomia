@@ -117,11 +117,13 @@ const setorController = {
         return res.status(403).json({ error: 'Sem permissão para criar setor nesta unidade' });
       }
 
+      const empresa_id = unidadeCheck.rows[0].empresa_id;
+
       const result = await pool.query(
-        `INSERT INTO setores (unidade_id, nome, descricao)
-         VALUES ($1, $2, $3)
+        `INSERT INTO setores (empresa_id, unidade_id, nome, descricao)
+         VALUES ($1, $2, $3, $4)
          RETURNING *`,
-        [unidade_id, nome, descricao]
+        [empresa_id, unidade_id, nome, descricao]
       );
 
       return res.status(201).json({
