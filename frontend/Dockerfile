@@ -42,9 +42,5 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 # Expor porta 80
 EXPOSE 80
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
-
 # Nginx roda em foreground por padrão no container
 CMD ["nginx", "-g", "daemon off;"]
