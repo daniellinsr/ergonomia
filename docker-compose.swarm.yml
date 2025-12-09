@@ -80,12 +80,6 @@ services:
     networks:
       - ergonomia-network
       - web-swarm
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     deploy:
       replicas: 1
       placement:
@@ -95,14 +89,14 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=web-swarm"
-        - "traefik.http.routers.ergonomia.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.ergonomia.rule=Host(`ergonomia.helthcorp.com.br`)"
         - "traefik.http.routers.ergonomia.entrypoints=websecure"
         - "traefik.http.routers.ergonomia.tls=true"
         - "traefik.http.routers.ergonomia.tls.certresolver=lets-encrypt"
         - "traefik.http.services.ergonomia.loadbalancer.server.port=80"
         - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.scheme=https"
         - "traefik.http.middlewares.ergonomia-redirect.redirectscheme.permanent=true"
-        - "traefik.http.routers.ergonomia-http.rule=Host(`${TRAEFIK_HOST}`)"
+        - "traefik.http.routers.ergonomia-http.rule=Host(`ergonomia.helthcorp.com.br`)"
         - "traefik.http.routers.ergonomia-http.entrypoints=web"
         - "traefik.http.routers.ergonomia-http.middlewares=ergonomia-redirect"
 
