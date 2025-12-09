@@ -22,12 +22,18 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
+    // Log para debug
+    console.log('🔍 CORS Debug - Origin recebida:', origin);
+    console.log('🔍 CORS Debug - Origins permitidas:', allowedOrigins);
+
     // Permitir requisições sem origin (ex: do Nginx proxy)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'A política CORS não permite acesso desta origem.';
+      const msg = `A política CORS não permite acesso desta origem: ${origin}`;
+      console.error('❌ CORS bloqueado:', origin);
       return callback(new Error(msg), false);
     }
+    console.log('✅ CORS permitido:', origin);
     return callback(null, true);
   },
   credentials: true
