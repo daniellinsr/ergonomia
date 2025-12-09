@@ -85,6 +85,7 @@ services:
       placement:
         constraints:
           - node.role == manager
+      endpoint_mode: dnsrr
       update_config:
         failure_action: continue
         monitor: 120s
