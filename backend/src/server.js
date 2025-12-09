@@ -16,11 +16,13 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
+  'https://ergonomia.helthcorp.com.br',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function(origin, callback) {
+    // Permitir requisições sem origin (ex: do Nginx proxy)
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) === -1) {
       const msg = 'A política CORS não permite acesso desta origem.';
