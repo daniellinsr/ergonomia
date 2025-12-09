@@ -85,6 +85,10 @@ services:
       placement:
         constraints:
           - node.role == manager
+      update_config:
+        failure_action: continue
+        monitor: 120s
+        max_failure_ratio: 1
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=web-swarm"
