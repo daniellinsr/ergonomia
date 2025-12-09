@@ -67,6 +67,12 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/mi
 echo -e "${GREEN}✅ Migration 004 concluída${NC}"
 echo ""
 
+# Migration 5: Renomear colunas para inglês
+echo -e "${YELLOW}➜ Migration 005: Padronizar nomes de colunas${NC}"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/migrations/005_rename_columns_to_english.sql
+echo -e "${GREEN}✅ Migration 005 concluída${NC}"
+echo ""
+
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  ✅ Todas as migrations concluídas!${NC}"
 echo -e "${GREEN}========================================${NC}"
