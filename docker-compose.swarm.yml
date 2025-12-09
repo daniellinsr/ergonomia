@@ -81,20 +81,16 @@ services:
       - ergonomia-network
       - web-swarm
     deploy:
+      mode: replicated
       replicas: 1
       placement:
         constraints:
           - node.role == manager
       endpoint_mode: vip
       update_config:
-        failure_action: rollback
-        monitor: 10s
-        max_failure_ratio: 0.3
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+        parallelism: 1
+        delay: 10s
+        order: start-first
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=web-swarm"
