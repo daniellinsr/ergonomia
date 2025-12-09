@@ -4,10 +4,9 @@
 -- Remover constraint antigo
 ALTER TABLE avaliacoes_ergonomicas DROP CONSTRAINT IF EXISTS avaliacoes_ergonomicas_tipo_avaliacao_check;
 
--- Adicionar novo constraint com mais opções
-ALTER TABLE avaliacoes_ergonomicas ADD CONSTRAINT avaliacoes_ergonomicas_tipo_avaliacao_check
-  CHECK (tipo_avaliacao IN ('preliminar', 'detalhada', 'reavaliacao', 'reavalicao', 'AEP', 'AET'));
+-- Adicionar novo constraint com mais opções (aceita qualquer valor VARCHAR)
+-- Removendo o constraint completamente para permitir flexibilidade
+-- ALTER TABLE avaliacoes_ergonomicas ADD CONSTRAINT avaliacoes_ergonomicas_tipo_avaliacao_check
+--   CHECK (tipo_avaliacao IN ('preliminar', 'detalhada', 'reavaliacao', 'reavalicao', 'AEP', 'AET', 'Completa', 'Parcial'));
 
--- Nota: Mantive 'reavalicao' (erro de digitação) por compatibilidade com dados existentes
--- AEP = Análise Ergonômica Preliminar
--- AET = Análise Ergonômica do Trabalho
+-- Nota: Constraint removido para permitir qualquer tipo de avaliação definido pelo usuário
