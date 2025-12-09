@@ -79,6 +79,12 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/mi
 echo -e "${GREEN}✅ Migration 006 concluída${NC}"
 echo ""
 
+# Migration 7: Corrigir constraint tipo_avaliacao
+echo -e "${YELLOW}➜ Migration 007: Corrigir constraint tipo_avaliacao${NC}"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/migrations/007_fix_tipo_avaliacao_constraint.sql
+echo -e "${GREEN}✅ Migration 007 concluída${NC}"
+echo ""
+
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  ✅ Todas as migrations concluídas!${NC}"
 echo -e "${GREEN}========================================${NC}"
