@@ -61,6 +61,12 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/mi
 echo -e "${GREEN}✅ Migration 003 concluída${NC}"
 echo ""
 
+# Migration 4: Sessões
+echo -e "${YELLOW}➜ Migration 004: Tabela de Sessões${NC}"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/migrations/004_sessoes.sql
+echo -e "${GREEN}✅ Migration 004 concluída${NC}"
+echo ""
+
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  ✅ Todas as migrations concluídas!${NC}"
 echo -e "${GREEN}========================================${NC}"
