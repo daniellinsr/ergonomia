@@ -57,6 +57,12 @@ export function Relatorios() {
         relatoriosService.relatorioAvaliacoesPorSetor(filtros),
       ]);
 
+      console.log('📊 Dados recebidos:');
+      console.log('Inventário:', inventario.data);
+      console.log('Estatísticas:', stats.data);
+      console.log('Por Setor:', porSetor.data);
+      console.log('Avaliações por Setor:', avaliacoesPorSetor.data);
+
       setInventarioRiscos(inventario.data);
       setEstatisticas(stats.data);
       setRelatorioPorSetor(porSetor.data);
