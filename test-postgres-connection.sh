@@ -23,8 +23,8 @@ set -a
 source .env
 set +a
 
-# Encontrar container
-POSTGRES_CONTAINER=$(docker ps --filter "name=ergonomia_postgres" --format "{{.Names}}" | head -1)
+# Encontrar container (excluir container de backup)
+POSTGRES_CONTAINER=$(docker ps --filter "name=ergonomia_postgres" --format "{{.Names}}" | grep -v backup | head -1)
 
 if [ -z "$POSTGRES_CONTAINER" ]; then
     echo -e "${RED}❌ Erro: Container PostgreSQL não encontrado!${NC}"

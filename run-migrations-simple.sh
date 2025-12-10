@@ -27,7 +27,7 @@ set +a
 
 # Verificar se o PostgreSQL está rodando
 echo -e "${YELLOW}🔍 Verificando se o PostgreSQL está rodando...${NC}"
-POSTGRES_CONTAINER=$(docker ps --filter "name=ergonomia_postgres" --format "{{.Names}}" | head -1)
+POSTGRES_CONTAINER=$(docker ps --filter "name=ergonomia_postgres" --format "{{.Names}}" | grep -v backup | head -1)
 
 if [ -z "$POSTGRES_CONTAINER" ]; then
     echo -e "${RED}❌ Erro: Container PostgreSQL não encontrado!${NC}"
