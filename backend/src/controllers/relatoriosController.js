@@ -217,13 +217,13 @@ const relatoriosController = {
           s.nome as setor_nome,
           u.nome as unidade_nome,
           COUNT(DISTINCT a.id) as total_avaliacoes,
-          COUNT(DISTINCT CASE WHEN cr.classificacao_final = 'Intolerável' THEN a.id END) as riscos_intoleraveis,
-          COUNT(DISTINCT CASE WHEN cr.classificacao_final = 'Substancial' THEN a.id END) as riscos_substanciais,
-          COUNT(DISTINCT CASE WHEN cr.classificacao_final = 'Moderado' THEN a.id END) as riscos_moderados
+          COUNT(CASE WHEN cr.classificacao_final = 'Intolerável' THEN pi.id END) as riscos_intoleraveis,
+          COUNT(CASE WHEN cr.classificacao_final = 'Substancial' THEN pi.id END) as riscos_substanciais,
+          COUNT(CASE WHEN cr.classificacao_final = 'Moderado' THEN pi.id END) as riscos_moderados
          FROM setores s
          JOIN unidades u ON s.unidade_id = u.id
          LEFT JOIN avaliacoes_ergonomicas a ON s.id = a.setor_id AND a.empresa_id = $1
-         LEFT JOIN perigos_identificados pi ON a.id = pi.avaliacao_id
+         LEFT JOIN perigos_identificados pi ON a.id = pi.avaliacao_id AND pi.identificado = true
          LEFT JOIN classificacao_risco cr ON pi.id = cr.perigo_identificado_id
          WHERE u.empresa_id = $1
       `;

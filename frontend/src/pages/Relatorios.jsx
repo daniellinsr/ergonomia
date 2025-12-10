@@ -13,13 +13,14 @@ import { RelatorioDetalhadoAvaliacoes } from '../components/relatorios/Relatorio
 export function Relatorios() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
-  
+
   // Estados de dados
   const [inventarioRiscos, setInventarioRiscos] = useState(null);
   const [estatisticas, setEstatisticas] = useState(null);
   const [relatorioPorSetor, setRelatorioPorSetor] = useState([]);
   const [relatorioAvaliacoesPorSetor, setRelatorioAvaliacoesPorSetor] = useState([]);
-  
+  const [setores, setSetores] = useState([]);
+
   // Filtros
   const [filtros, setFiltros] = useState({
     setor_id: '',
@@ -28,8 +29,23 @@ export function Relatorios() {
   });
 
   useEffect(() => {
+    carregarSetores();
     carregarDados();
   }, []);
+
+  const carregarSetores = async () => {
+    try {
+      const response = await fetch('/api/setores', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const data = await response.json();
+      setSetores(data.data || []);
+    } catch (error) {
+      console.error('Erro ao carregar setores:', error);
+    }
+  };
 
   const carregarDados = async () => {
     setLoading(true);
@@ -37,7 +53,7 @@ export function Relatorios() {
       const [inventario, stats, porSetor, avaliacoesPorSetor] = await Promise.all([
         relatoriosService.inventarioRiscos(filtros),
         relatoriosService.estatisticasGerais(),
-        relatoriosService.relatorioPorSetor(),
+        relatoriosService.relatorioPorSetor(filtros),
         relatoriosService.relatorioAvaliacoesPorSetor(filtros),
       ]);
 
@@ -560,6 +576,21 @@ export function Relatorios() {
               <h3 className="font-semibold">Filtros</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Setor
+                </label>
+                <select
+                  value={filtros.setor_id}
+                  onChange={(e) => setFiltros({...filtros, setor_id: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                >
+                  <option value="">Todos os setores</option>
+                  {setores.map(setor => (
+                    <option key={setor.id} value={setor.id}>{setor.nome}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Data Início
