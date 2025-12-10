@@ -90,10 +90,25 @@ export const agruparPerigosPorCategoria = (perigos) => {
     'Condições Físicas/Ambientais': [],
   };
 
+  // Debug: mostrar todas as categorias recebidas
+  const categoriasUnicas = [...new Set(perigos.map(p => p.categoria))];
+  console.log('=== DEBUG: Categorias encontradas nos perigos ===');
+  console.log('Total de perigos:', perigos.length);
+  console.log('Categorias únicas:', categoriasUnicas);
+  console.log('Categorias esperadas:', Object.keys(grupos));
+
   perigos.forEach(perigo => {
     if (grupos[perigo.categoria]) {
       grupos[perigo.categoria].push(perigo);
+    } else {
+      console.warn(`Categoria não encontrada no mapeamento: "${perigo.categoria}" (perigo #${perigo.numero})`);
     }
+  });
+
+  // Debug: mostrar contagem por categoria
+  console.log('=== Contagem por categoria ===');
+  Object.keys(grupos).forEach(cat => {
+    console.log(`${cat}: ${grupos[cat].length} perigos`);
   });
 
   return grupos;
