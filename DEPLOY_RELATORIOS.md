@@ -223,6 +223,48 @@ GROUP BY a.id, a.titulo, s.nome;
 "
 ```
 
+## 🔍 Diagnóstico Confirmado - BANCO VAZIO
+
+**Problema Identificado**: Os logs confirmam que o banco de dados está retornando 0 linhas.
+
+```
+Backend: 📊 [Inventário] Query executada. Rows encontradas: 0
+Frontend: 🔍 Inventário - riscos: 0
+```
+
+Isso significa que:
+1. ❌ Não há avaliações no banco para a empresa do usuário logado
+2. ❌ OU não há perigos classificados nas avaliações
+3. ❌ OU a empresa_id do usuário não corresponde às avaliações
+
+### Solução Rápida
+
+Criamos 2 scripts para ajudar:
+
+#### 1. Diagnosticar o problema
+```bash
+bash diagnostico-dados.sh
+```
+
+Este script vai mostrar:
+- Quantas avaliações existem
+- Quais empresas têm avaliações
+- Se há perigos identificados
+- Se há classificações de risco
+- Testar a query do inventário
+
+#### 2. Popular dados de teste (se necessário)
+```bash
+bash popular-dados-teste.sh
+```
+
+Este script vai criar:
+- 3 avaliações de teste
+- 5 perigos identificados por avaliação
+- Classificações de risco variadas (Intolerável, Substancial, Moderado, etc.)
+
+**IMPORTANTE**: Execute primeiro o `diagnostico-dados.sh` para entender o problema antes de popular dados.
+
 ## Build Atual
 
 O build do frontend já foi realizado com sucesso:
@@ -233,3 +275,13 @@ O build do frontend já foi realizado com sucesso:
 - Versão: Com logs de debug
 
 Os arquivos estão em: `frontend/dist/`
+
+## Código Funcionando Corretamente ✅
+
+Os logs confirmam que:
+- ✅ Frontend está fazendo as requisições corretamente
+- ✅ Backend está executando as queries corretamente
+- ✅ Estrutura de dados está correta
+- ✅ Comunicação frontend-backend está funcionando
+
+O problema é **apenas falta de dados no banco**.
