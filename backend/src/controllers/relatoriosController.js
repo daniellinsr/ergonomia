@@ -65,6 +65,11 @@ const relatoriosController = {
 
       const result = await pool.query(query, params);
 
+      console.log('📊 [Inventário] Query executada. Rows encontradas:', result.rows.length);
+      if (result.rows.length > 0) {
+        console.log('📊 [Inventário] Primeira row:', result.rows[0]);
+      }
+
       // Agrupar por nível de risco
       const riscosPorNivel = {
         intoleravel: [],
@@ -250,6 +255,11 @@ const relatoriosController = {
 
       const result = await pool.query(query, params);
 
+      console.log('📊 [Por Setor] Query executada. Rows encontradas:', result.rows.length);
+      if (result.rows.length > 0) {
+        console.log('📊 [Por Setor] Primeira row:', result.rows[0]);
+      }
+
       res.json(result.rows);
     } catch (error) {
       console.error('Erro ao buscar relatório por setor:', error);
@@ -317,6 +327,11 @@ const relatoriosController = {
       `;
 
       const result = await pool.query(query, params);
+
+      console.log('📊 [Avaliações por Setor] Query executada. Rows encontradas:', result.rows.length);
+      if (result.rows.length > 0) {
+        console.log('📊 [Avaliações por Setor] Primeira row:', result.rows[0]);
+      }
 
       res.json(result.rows);
     } catch (error) {

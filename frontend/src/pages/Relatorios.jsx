@@ -63,6 +63,13 @@ export function Relatorios() {
       console.log('Por Setor:', porSetor.data);
       console.log('Avaliações por Setor:', avaliacoesPorSetor.data);
 
+      // Verificar estrutura dos dados
+      if (inventario.data) {
+        console.log('🔍 Inventário - riscos:', inventario.data.riscos?.length || 0);
+        console.log('🔍 Inventário - stats:', inventario.data.stats);
+        console.log('🔍 Inventário - riscosPorNivel:', inventario.data.riscosPorNivel);
+      }
+
       setInventarioRiscos(inventario.data);
       setEstatisticas(stats.data);
       setRelatorioPorSetor(porSetor.data);
