@@ -27,8 +27,8 @@ export const PreencherAvaliacao = () => {
   const [categoriaExpandida, setCategoriaExpandida] = useState({
     'Biomecânicos': true,
     'Mobiliário/Equipamentos': false,
-    'Organização/Cognitivo/Psicossociais': false,
-    'Condições Ambientais': false,
+    'Organização/Cognitivo/Psicossocial': false,
+    'Condições Físicas/Ambientais': false,
   });
   const [modalRiscoOpen, setModalRiscoOpen] = useState(false);
   const [perigoSelecionado, setPerigoSelecionado] = useState(null);

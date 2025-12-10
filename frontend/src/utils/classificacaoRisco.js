@@ -86,16 +86,16 @@ export const agruparPerigosPorCategoria = (perigos) => {
   const grupos = {
     'Biomecânicos': [],
     'Mobiliário/Equipamentos': [],
-    'Organização/Cognitivo/Psicossociais': [],
-    'Condições Ambientais': [],
+    'Organização/Cognitivo/Psicossocial': [],
+    'Condições Físicas/Ambientais': [],
   };
-  
+
   perigos.forEach(perigo => {
     if (grupos[perigo.categoria]) {
       grupos[perigo.categoria].push(perigo);
     }
   });
-  
+
   return grupos;
 };
 
