@@ -223,19 +223,27 @@ GROUP BY a.id, a.titulo, s.nome;
 "
 ```
 
-## 🔍 Diagnóstico Confirmado - BANCO VAZIO
+## 🔍 Diagnóstico Confirmado - BANCO VAZIO + ERRO DE TIPO UUID
 
-**Problema Identificado**: Os logs confirmam que o banco de dados está retornando 0 linhas.
+**Problemas Identificados**:
 
+1. **Banco de dados retornando 0 linhas**:
 ```
 Backend: 📊 [Inventário] Query executada. Rows encontradas: 0
 Frontend: 🔍 Inventário - riscos: 0
+```
+
+2. **Erro de tipo UUID** encontrado no diagnóstico:
+```
+ERROR:  operator does not exist: uuid = integer
+HINT:  No operator matches the given name and argument types. You might need to add explicit type casts.
 ```
 
 Isso significa que:
 1. ❌ Não há avaliações no banco para a empresa do usuário logado
 2. ❌ OU não há perigos classificados nas avaliações
 3. ❌ OU a empresa_id do usuário não corresponde às avaliações
+4. ⚠️ **IMPORTANTE**: `empresa_id`, `usuario_id`, `setor_id` são do tipo **UUID**, não INTEGER
 
 ### Solução Rápida
 

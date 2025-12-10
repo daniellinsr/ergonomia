@@ -59,32 +59,39 @@ fi
 echo ""
 echo -e "${YELLOW}🔍 1. Buscando informações necessárias...${NC}"
 
-# Buscar empresa_id, setor_id, usuario_id
-EMPRESA_INFO=$(docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -t -c "
-SELECT
-  e.id as empresa_id,
-  u.id as usuario_id,
-  s.id as setor_id
-FROM empresas e
-LEFT JOIN usuarios u ON e.id = u.empresa_id
-LEFT JOIN unidades un ON e.id = un.empresa_id
-LEFT JOIN setores s ON un.id = s.unidade_id
-LIMIT 1;
-")
+# Buscar empresa_id
+EMPRESA_ID=$(docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT id FROM empresas LIMIT 1;" | xargs)
 
-EMPRESA_ID=$(echo $EMPRESA_INFO | awk '{print $1}')
-USUARIO_ID=$(echo $EMPRESA_INFO | awk '{print $3}')
-SETOR_ID=$(echo $EMPRESA_INFO | awk '{print $5}')
-
-echo -e "${GREEN}  ✓ Empresa ID: $EMPRESA_ID${NC}"
-echo -e "${GREEN}  ✓ Usuário ID: $USUARIO_ID${NC}"
-echo -e "${GREEN}  ✓ Setor ID: $SETOR_ID${NC}"
-
-if [ -z "$EMPRESA_ID" ] || [ -z "$USUARIO_ID" ] || [ -z "$SETOR_ID" ]; then
-    echo -e "${RED}❌ Erro: Não foi possível encontrar empresa, usuário ou setor.${NC}"
-    echo -e "${YELLOW}Execute primeiro o sistema para criar uma empresa e setor.${NC}"
+if [ -z "$EMPRESA_ID" ]; then
+    echo -e "${RED}❌ Erro: Nenhuma empresa encontrada.${NC}"
+    echo -e "${YELLOW}Execute primeiro o sistema para criar uma empresa.${NC}"
     exit 1
 fi
+echo -e "${GREEN}  ✓ Empresa ID: $EMPRESA_ID${NC}"
+
+# Buscar usuario_id
+USUARIO_ID=$(docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT id FROM usuarios WHERE empresa_id = '$EMPRESA_ID'::uuid LIMIT 1;" | xargs)
+
+if [ -z "$USUARIO_ID" ]; then
+    echo -e "${RED}❌ Erro: Nenhum usuário encontrado para esta empresa.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}  ✓ Usuário ID: $USUARIO_ID${NC}"
+
+# Buscar setor_id
+SETOR_ID=$(docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -t -c "
+SELECT s.id
+FROM setores s
+JOIN unidades u ON s.unidade_id = u.id
+WHERE u.empresa_id = '$EMPRESA_ID'::uuid
+LIMIT 1;" | xargs)
+
+if [ -z "$SETOR_ID" ]; then
+    echo -e "${RED}❌ Erro: Nenhum setor encontrado para esta empresa.${NC}"
+    echo -e "${YELLOW}Execute primeiro o sistema para criar uma unidade e setor.${NC}"
+    exit 1
+fi
+echo -e "${GREEN}  ✓ Setor ID: $SETOR_ID${NC}"
 
 echo ""
 echo -e "${YELLOW}📋 2. Criando avaliações de teste...${NC}"
@@ -106,9 +113,9 @@ for i in {1..3}; do
       created_at,
       updated_at
     ) VALUES (
-      $EMPRESA_ID,
-      $USUARIO_ID,
-      $SETOR_ID,
+      '$EMPRESA_ID'::uuid,
+      '$USUARIO_ID'::uuid,
+      '$SETOR_ID'::uuid,
       'Avaliação de Teste $i',
       'Avaliação criada automaticamente para testes de relatórios',
       'AET',

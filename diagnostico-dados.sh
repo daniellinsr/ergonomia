@@ -127,34 +127,44 @@ LIMIT 10;
 "
 echo ""
 
-# 7. Testar query do inventário para empresa_id = 1
-echo -e "${YELLOW}🧪 7. Testando query do inventário (empresa_id = 1)...${NC}"
-docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "
-SELECT
-  a.id,
-  a.data_avaliacao,
-  a.tipo_avaliacao,
-  a.titulo,
-  s.nome as setor_nome,
-  u.nome as unidade_nome,
-  COUNT(DISTINCT pi.id) FILTER (WHERE pi.identificado = true) as total_perigos,
-  (
-    SELECT cr2.classificacao_final
-    FROM perigos_identificados pi2
-    JOIN classificacao_risco cr2 ON pi2.id = cr2.perigo_identificado_id
-    WHERE pi2.avaliacao_id = a.id
-    ORDER BY cr2.nivel_risco DESC NULLS LAST
-    LIMIT 1
-  ) as classificacao_risco
-FROM avaliacoes_ergonomicas a
-JOIN setores s ON a.setor_id = s.id
-JOIN unidades u ON s.unidade_id = u.id
-LEFT JOIN perigos_identificados pi ON a.id = pi.avaliacao_id
-LEFT JOIN classificacao_risco cr ON pi.id = cr.perigo_identificado_id
-WHERE a.empresa_id = 1
-GROUP BY a.id, a.titulo, s.nome, u.nome
-LIMIT 5;
-"
+# 7. Obter primeiro empresa_id para teste
+echo -e "${YELLOW}🧪 7. Obtendo empresa_id para teste...${NC}"
+PRIMEIRA_EMPRESA=$(docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT id FROM empresas LIMIT 1;" | xargs)
+
+if [ -z "$PRIMEIRA_EMPRESA" ]; then
+    echo -e "${RED}❌ Nenhuma empresa encontrada!${NC}"
+else
+    echo -e "${GREEN}✅ Testando com empresa_id: $PRIMEIRA_EMPRESA${NC}"
+    echo ""
+
+    echo -e "${YELLOW}🧪 Testando query do inventário...${NC}"
+    docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "
+    SELECT
+      a.id,
+      a.data_avaliacao,
+      a.tipo_avaliacao,
+      a.titulo,
+      s.nome as setor_nome,
+      u.nome as unidade_nome,
+      COUNT(DISTINCT pi.id) FILTER (WHERE pi.identificado = true) as total_perigos,
+      (
+        SELECT cr2.classificacao_final
+        FROM perigos_identificados pi2
+        JOIN classificacao_risco cr2 ON pi2.id = cr2.perigo_identificado_id
+        WHERE pi2.avaliacao_id = a.id
+        ORDER BY cr2.nivel_risco DESC NULLS LAST
+        LIMIT 1
+      ) as classificacao_risco
+    FROM avaliacoes_ergonomicas a
+    JOIN setores s ON a.setor_id = s.id
+    JOIN unidades u ON s.unidade_id = u.id
+    LEFT JOIN perigos_identificados pi ON a.id = pi.avaliacao_id
+    LEFT JOIN classificacao_risco cr ON pi.id = cr.perigo_identificado_id
+    WHERE a.empresa_id = '$PRIMEIRA_EMPRESA'::uuid
+    GROUP BY a.id, a.titulo, s.nome, u.nome
+    LIMIT 5;
+    "
+fi
 echo ""
 
 # 8. Verificar usuários e suas empresas
