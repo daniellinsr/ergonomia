@@ -70,7 +70,7 @@ for i in "${!migrations[@]}"; do
 
     echo -e "${YELLOW}➜ Migration $(printf "%03d" $migration_num): ${migration_file%.sql}${NC}"
 
-    docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f "/tmp/migrations/$migration_file"
+    docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -f "/tmp/migrations/$migration_file"
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Migration $(printf "%03d" $migration_num) concluída${NC}"
@@ -92,7 +92,7 @@ echo ""
 
 # Verificar tabelas criadas
 echo -e "${YELLOW}📊 Tabelas criadas:${NC}"
-docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "\dt"
+docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "\dt"
 echo ""
 
 echo -e "${YELLOW}💡 Próximo passo: Verificar se tudo está funcionando${NC}"

@@ -33,14 +33,14 @@ if [ -z "$POSTGRES_CONTAINER" ]; then
 fi
 
 echo -e "${YELLOW}📊 Categorias únicas no banco de dados:${NC}"
-docker exec -i $POSTGRES_CONTAINER psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT DISTINCT categoria, COUNT(*) as total FROM perigos_catalogo GROUP BY categoria ORDER BY categoria;"
+docker exec -i -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT DISTINCT categoria, COUNT(*) as total FROM perigos_catalogo GROUP BY categoria ORDER BY categoria;"
 
 echo ""
 echo -e "${YELLOW}📊 Detalhamento por número:${NC}"
-docker exec -i $POSTGRES_CONTAINER psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT categoria, MIN(numero) as primeiro, MAX(numero) as ultimo, COUNT(*) as quantidade FROM perigos_catalogo GROUP BY categoria ORDER BY MIN(numero);"
+docker exec -i -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT categoria, MIN(numero) as primeiro, MAX(numero) as ultimo, COUNT(*) as quantidade FROM perigos_catalogo GROUP BY categoria ORDER BY MIN(numero);"
 
 echo ""
 echo -e "${YELLOW}📊 Verificando encoding das categorias (com aspas para ver espaços):${NC}"
-docker exec -i $POSTGRES_CONTAINER psql -h localhost -U "$DB_USER" -d "$DB_NAME" -c "SELECT '\"' || categoria || '\"' as categoria_com_aspas, LENGTH(categoria) as tamanho, COUNT(*) as total FROM perigos_catalogo GROUP BY categoria ORDER BY MIN(numero);"
+docker exec -i -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT '\"' || categoria || '\"' as categoria_com_aspas, LENGTH(categoria) as tamanho, COUNT(*) as total FROM perigos_catalogo GROUP BY categoria ORDER BY MIN(numero);"
 
 echo ""
