@@ -180,3 +180,70 @@ Após implementação, testar:
 - Fase 4: 2-3 horas
 
 **Total: 10-15 horas de desenvolvimento**
+
+---
+
+## ATUALIZAÇÃO - 2025-12-10 (Tarde)
+
+### ✅ IMPLEMENTAÇÃO CONCLUÍDA
+
+Todas as 4 fases foram implementadas com sucesso:
+
+#### FASE 1 - Correções Críticas ✅
+- ✅ Query de inventário corrigida (usar subquery para pegar classificação correta)
+- ✅ Filtros de data adicionados em relatorioPorSetor  
+- ✅ Filtros de data adicionados em relatorioAvaliacoesPorSetor
+
+#### FASE 2 - Melhorias de Filtros ✅
+- ✅ Dropdown de setores adicionado no frontend
+- ✅ Carregamento de lista de setores via API
+- ✅ Filtros aplicados em todos os endpoints (inventário, por setor, avaliações)
+
+#### FASE 3 - Exportação Individual ✅
+- ✅ Função exportarInventarioPDF() com gerador HTML
+- ✅ Função exportarPorSetorPDF() com gerador HTML
+- ✅ Função exportarAvaliacoesPorSetorPDF() com gerador HTML
+- ✅ Botões de exportação adicionados em cada tab
+- ✅ PDFs individualizados para cada tipo de relatório
+
+#### FASE 4 - Correção de Contagens ✅
+- ✅ Relatório por setor agora conta PERIGOS em vez de avaliações
+- ✅ Adicionado filtro `pi.identificado = true` para precisão
+- ✅ Removido DISTINCT das contagens por classificação
+
+### Commits Realizados
+1. `67b1707` - FASE 1: Correções críticas nos relatórios
+2. `f1178f2` - FASE 2 e 4: Melhorias de filtros e correção de contagens
+3. `83818e4` - FASE 3: Adicionar exportação individual de relatórios
+
+### Próximos Passos
+
+Execute no servidor:
+```bash
+cd /opt/apps/ergonomia
+git pull
+bash force-redeploy.sh
+```
+
+Após deploy, testar:
+1. ✅ Filtro por setor no Inventário de Riscos
+2. ✅ Filtros de data em todos os relatórios
+3. ✅ Exportação individual de cada relatório
+4. ✅ Verificar contagens corretas por setor
+5. ✅ Verificar classificações de risco corretas
+
+### Melhorias Implementadas
+
+**Backend:**
+- Queries otimizadas com subqueries
+- Filtros dinâmicos com prepared statements
+- Contagens precisas de perigos
+
+**Frontend:**
+- Interface de filtros completa
+- 3 novos botões de exportação
+- Funções HTML otimizadas para PDF
+- Carregamento dinâmico de setores
+
+**Total de linhas alteradas:** ~200 linhas
+**Tempo estimado:** 10-15 horas → **Concluído em 1 sessão**
