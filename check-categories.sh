@@ -41,6 +41,6 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT c
 
 echo ""
 echo -e "${YELLOW}📊 Verificando encoding das categorias (com aspas para ver espaços):${NC}"
-docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT DISTINCT '\"' || categoria || '\"' as categoria_com_aspas, LENGTH(categoria) as tamanho FROM perigos_catalogo ORDER BY categoria;"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "SELECT '\"' || categoria || '\"' as categoria_com_aspas, LENGTH(categoria) as tamanho, COUNT(*) as total FROM perigos_catalogo GROUP BY categoria ORDER BY MIN(numero);"
 
 echo ""
