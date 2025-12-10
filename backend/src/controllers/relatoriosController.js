@@ -18,7 +18,14 @@ const relatoriosController = {
           s.nome as setor_nome,
           u.nome as unidade_nome,
           COUNT(DISTINCT pi.id) FILTER (WHERE pi.identificado = true) as total_perigos,
-          MAX(cr.classificacao_final) as classificacao_risco,
+          (
+            SELECT cr2.classificacao_final
+            FROM perigos_identificados pi2
+            JOIN classificacao_risco cr2 ON pi2.id = cr2.perigo_identificado_id
+            WHERE pi2.avaliacao_id = a.id
+            ORDER BY cr2.nivel_risco DESC NULLS LAST
+            LIMIT 1
+          ) as classificacao_risco,
           MAX(cr.nivel_risco) as nivel_risco
         FROM avaliacoes_ergonomicas a
         JOIN setores s ON a.setor_id = s.id
@@ -202,9 +209,10 @@ const relatoriosController = {
   async relatorioPorSetor(req, res) {
     try {
       const empresaId = req.user.empresa_id;
+      const { data_inicio, data_fim } = req.query;
 
-      const result = await pool.query(
-        `SELECT
+      let query = `
+        SELECT
           s.id as setor_id,
           s.nome as setor_nome,
           u.nome as unidade_nome,
@@ -218,10 +226,29 @@ const relatoriosController = {
          LEFT JOIN perigos_identificados pi ON a.id = pi.avaliacao_id
          LEFT JOIN classificacao_risco cr ON pi.id = cr.perigo_identificado_id
          WHERE u.empresa_id = $1
+      `;
+
+      const params = [empresaId];
+      let paramIndex = 2;
+
+      if (data_inicio) {
+        query += ` AND (a.data_avaliacao IS NULL OR a.data_avaliacao >= $${paramIndex})`;
+        params.push(data_inicio);
+        paramIndex++;
+      }
+
+      if (data_fim) {
+        query += ` AND (a.data_avaliacao IS NULL OR a.data_avaliacao <= $${paramIndex})`;
+        params.push(data_fim);
+        paramIndex++;
+      }
+
+      query += `
          GROUP BY s.id, s.nome, u.nome
-         ORDER BY riscos_intoleraveis DESC, riscos_substanciais DESC`,
-        [empresaId]
-      );
+         ORDER BY riscos_intoleraveis DESC, riscos_substanciais DESC
+      `;
+
+      const result = await pool.query(query, params);
 
       res.json(result.rows);
     } catch (error) {
@@ -234,7 +261,7 @@ const relatoriosController = {
   async relatorioAvaliacoesPorSetor(req, res) {
     try {
       const empresaId = req.user.empresa_id;
-      const { setor_id } = req.query;
+      const { setor_id, data_inicio, data_fim } = req.query;
 
       let query = `
         SELECT
@@ -243,6 +270,7 @@ const relatoriosController = {
           a.descricao,
           a.data_avaliacao,
           a.tipo_avaliacao,
+          a.status,
           s.nome as setor_nome,
           u.nome as unidade_nome,
           COUNT(DISTINCT pi.id) FILTER (WHERE pi.identificado = true) as total_perigos,
@@ -254,7 +282,7 @@ const relatoriosController = {
             WHERE pi2.avaliacao_id = a.id AND cr.classificacao_final IS NOT NULL
             ORDER BY cr.nivel_risco DESC
             LIMIT 1
-          ) as maior_risco
+          ) as classificacao_risco
          FROM avaliacoes_ergonomicas a
          JOIN setores s ON a.setor_id = s.id
          JOIN unidades u ON s.unidade_id = u.id
@@ -263,14 +291,28 @@ const relatoriosController = {
       `;
 
       const params = [empresaId];
+      let paramIndex = 2;
 
       if (setor_id) {
-        query += ` AND a.setor_id = $2`;
+        query += ` AND a.setor_id = $${paramIndex}`;
         params.push(setor_id);
+        paramIndex++;
+      }
+
+      if (data_inicio) {
+        query += ` AND a.data_avaliacao >= $${paramIndex}`;
+        params.push(data_inicio);
+        paramIndex++;
+      }
+
+      if (data_fim) {
+        query += ` AND a.data_avaliacao <= $${paramIndex}`;
+        params.push(data_fim);
+        paramIndex++;
       }
 
       query += `
-         GROUP BY a.id, a.titulo, a.descricao, a.data_avaliacao, a.tipo_avaliacao, s.nome, u.nome
+         GROUP BY a.id, a.titulo, a.descricao, a.data_avaliacao, a.tipo_avaliacao, a.status, s.nome, u.nome
          ORDER BY a.data_avaliacao DESC
       `;
 
