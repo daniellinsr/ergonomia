@@ -97,6 +97,12 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/mi
 echo -e "${GREEN}✅ Migration 009 concluída${NC}"
 echo ""
 
+# Migration 10: Corrigir trigger de updated_at
+echo -e "${YELLOW}➜ Migration 010: Corrigir trigger de updated_at${NC}"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/migrations/010_fix_update_trigger.sql
+echo -e "${GREEN}✅ Migration 010 concluída${NC}"
+echo ""
+
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  ✅ Todas as migrations concluídas!${NC}"
 echo -e "${GREEN}========================================${NC}"
