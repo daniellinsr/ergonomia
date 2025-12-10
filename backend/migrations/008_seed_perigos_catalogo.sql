@@ -1,5 +1,5 @@
 -- Migration 008: Popular catálogo de perigos ergonômicos
--- Insere os 61 perigos ergonômicos conforme NR-17
+-- Insere os 60 perigos ergonômicos conforme NR-17
 
 -- Limpar tabela antes de popular (caso já tenha dados)
 TRUNCATE TABLE perigos_catalogo CASCADE;
@@ -65,7 +65,7 @@ INSERT INTO perigos_catalogo (numero, categoria, descricao) VALUES
 (51, 'Organização/Cognitivo/Psicossocial', 'Trabalho remunerado por produção'),
 (52, 'Organização/Cognitivo/Psicossocial', 'Falta de autonomia');
 
--- Condições físico/ambientais (53-61)
+-- Condições físico/ambientais (53-60)
 INSERT INTO perigos_catalogo (numero, categoria, descricao) VALUES
 (53, 'Condições Físicas/Ambientais', 'Condições de trabalho com iluminação diurna inadequada'),
 (54, 'Condições Físicas/Ambientais', 'Condições de trabalho com iluminação noturna inadequada'),
@@ -74,5 +74,4 @@ INSERT INTO perigos_catalogo (numero, categoria, descricao) VALUES
 (57, 'Condições Físicas/Ambientais', 'Condições de trabalho com umidade do ar fora dos parâmetros de conforto'),
 (58, 'Condições Físicas/Ambientais', 'Condições de trabalho com velocidade do ar fora dos parâmetros de conforto'),
 (59, 'Condições Físicas/Ambientais', 'Presença de reflexos em telas, painéis, vidros, monitores ou qualquer superfície que causem desconforto ou prejudiquem a visualização'),
-(60, 'Condições Físicas/Ambientais', 'Piso escorregadio e/ou irregular'),
-(61, 'Organização/Cognitivo/Psicossocial', 'Trabalho em condições de difícil comunicação');
+(60, 'Condições Físicas/Ambientais', 'Piso escorregadio e/ou irregular');
