@@ -174,11 +174,19 @@ SELECT
   u.id,
   u.nome,
   u.email,
-  u.empresa_id,
-  e.nome as empresa_nome
+  u.empresa_id
 FROM usuarios u
-LEFT JOIN empresas e ON u.empresa_id = e.id
 LIMIT 5;
+"
+echo ""
+
+# 9. Verificar estrutura da tabela empresas
+echo -e "${YELLOW}🏢 9. Verificando estrutura da tabela empresas...${NC}"
+docker exec -e PGPASSWORD="$DB_PASSWORD" $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" -c "
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'empresas'
+ORDER BY ordinal_position;
 "
 echo ""
 
