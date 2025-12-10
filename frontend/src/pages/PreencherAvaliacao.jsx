@@ -152,9 +152,9 @@ export const PreencherAvaliacao = () => {
       // Não avaliado
       return {
         icon: Circle,
-        color: 'text-gray-400',
-        bgColor: 'bg-white',
-        borderColor: 'border-gray-200',
+        color: 'text-red-500',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-300',
         label: 'Não Avaliado',
       };
     }
@@ -338,7 +338,11 @@ export const PreencherAvaliacao = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2 mt-2">
-                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${status.color.replace('text-', 'bg-').replace('600', '100')} ${status.color}`}>
+                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                    status.label === 'Não Avaliado'
+                                      ? 'bg-red-100 text-red-700'
+                                      : `${status.color.replace('text-', 'bg-').replace('600', '100')} ${status.color}`
+                                  }`}>
                                     {status.label}
                                   </span>
                                 </div>
