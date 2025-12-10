@@ -61,6 +61,7 @@ migrations=(
     "008_seed_perigos_catalogo.sql"
     "009_add_peso_columns_classificacao_risco.sql"
     "010_fix_update_trigger.sql"
+    "011_fix_perigos_inicial_null.sql"
 )
 
 # Executar cada migration

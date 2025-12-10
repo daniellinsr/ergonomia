@@ -227,13 +227,13 @@ const avaliacaoController = {
 
       const avaliacao = avaliacaoResult.rows[0];
 
-      // Criar registros de perigos (todos inicialmente não identificados)
+      // Criar registros de perigos (todos inicialmente sem resposta = NULL)
       const perigosResult = await client.query('SELECT id FROM perigos_catalogo ORDER BY numero');
 
       for (const perigo of perigosResult.rows) {
         await client.query(
           `INSERT INTO perigos_identificados (avaliacao_id, perigo_id, identificado)
-           VALUES ($1, $2, false)`,
+           VALUES ($1, $2, NULL)`,
           [avaliacao.id, perigo.id]
         );
       }
