@@ -22,16 +22,9 @@ git pull
 echo -e "${GREEN}✅ Código atualizado${NC}"
 echo ""
 
-# Build frontend
-echo -e "${YELLOW}🔨 Compilando frontend...${NC}"
-cd frontend
-npm run build
-cd ..
-echo -e "${GREEN}✅ Frontend compilado${NC}"
-echo ""
-
-# Deploy
+# Deploy (o build do frontend acontece dentro do Dockerfile)
 echo -e "${YELLOW}🚀 Fazendo deploy do stack...${NC}"
+echo -e "${YELLOW}   O Docker vai rebuildar as imagens com o código atualizado${NC}"
 bash deploy-swarm.sh
 echo -e "${GREEN}✅ Deploy concluído${NC}"
 echo ""
@@ -42,6 +35,11 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 
 echo -e "${YELLOW}💡 Próximos passos:${NC}"
-echo -e "${YELLOW}   1. Aguarde ~30 segundos para os containers reiniciarem${NC}"
+echo -e "${YELLOW}   1. Aguarde ~1 minuto para os containers reiniciarem e buildarem${NC}"
 echo -e "${YELLOW}   2. Acesse a aplicação e verifique se os 61 perigos aparecem${NC}"
+echo -e "${YELLOW}   3. As categorias devem mostrar:${NC}"
+echo -e "${YELLOW}      - Biomecânicos: 16 perigos${NC}"
+echo -e "${YELLOW}      - Mobiliário/Equipamentos: 17 perigos${NC}"
+echo -e "${YELLOW}      - Organização/Cognitivo/Psicossocial: 19 perigos${NC}"
+echo -e "${YELLOW}      - Condições Físicas/Ambientais: 9 perigos${NC}"
 echo ""
