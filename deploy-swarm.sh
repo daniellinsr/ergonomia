@@ -54,6 +54,14 @@ if [ ${#missing_vars[@]} -gt 0 ]; then
 fi
 
 echo ""
+echo -e "${YELLOW}🔨 Buildando imagens atualizadas...${NC}"
+
+# Build das imagens (força rebuild sem cache para pegar mudanças)
+docker build --no-cache -t ergonomia-frontend:latest ./frontend
+docker build --no-cache -t ergonomia-backend:latest ./backend
+
+echo -e "${GREEN}✅ Imagens buildadas${NC}"
+echo ""
 echo -e "${YELLOW}🚀 Fazendo deploy do stack...${NC}"
 
 # Deploy do stack
