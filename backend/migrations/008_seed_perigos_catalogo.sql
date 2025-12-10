@@ -75,4 +75,4 @@ INSERT INTO perigos_catalogo (numero, categoria, descricao) VALUES
 (58, 'Condições Físicas/Ambientais', 'Condições de trabalho com velocidade do ar fora dos parâmetros de conforto'),
 (59, 'Condições Físicas/Ambientais', 'Presença de reflexos em telas, painéis, vidros, monitores ou qualquer superfície que causem desconforto ou prejudiquem a visualização'),
 (60, 'Condições Físicas/Ambientais', 'Piso escorregadio e/ou irregular'),
-(61, 'Condições Físicas/Ambientais', 'Trabalho em condições de difícil comunicação');
+(61, 'Organização/Cognitivo/Psicossocial', 'Trabalho em condições de difícil comunicação');

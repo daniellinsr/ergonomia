@@ -63,6 +63,7 @@ migrations=(
     "010_fix_update_trigger.sql"
     "011_fix_perigos_inicial_null.sql"
     "012_create_auditoria_log.sql"
+    "013_fix_perigo_61_categoria.sql"
 )
 
 # Executar cada migration
