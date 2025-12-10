@@ -62,6 +62,7 @@ migrations=(
     "009_add_peso_columns_classificacao_risco.sql"
     "010_fix_update_trigger.sql"
     "011_fix_perigos_inicial_null.sql"
+    "012_create_auditoria_log.sql"
 )
 
 # Executar cada migration
