@@ -91,6 +91,12 @@ docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/mi
 echo -e "${GREEN}✅ Migration 008 concluída - 61 perigos cadastrados${NC}"
 echo ""
 
+# Migration 9: Adicionar colunas de peso
+echo -e "${YELLOW}➜ Migration 009: Adicionar peso_severidade e peso_probabilidade${NC}"
+docker exec -i $POSTGRES_CONTAINER psql -U "$DB_USER" -d "$DB_NAME" < backend/migrations/009_add_peso_columns_classificacao_risco.sql
+echo -e "${GREEN}✅ Migration 009 concluída${NC}"
+echo ""
+
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}  ✅ Todas as migrations concluídas!${NC}"
 echo -e "${GREEN}========================================${NC}"
