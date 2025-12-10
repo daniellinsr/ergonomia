@@ -78,25 +78,55 @@ export function Relatorios() {
       setLoading(true);
       const response = await relatoriosService.relatorioConsolidado();
       const dados = response.data;
-      
+
       // Criar HTML para PDF
       const htmlContent = gerarHTMLParaPDF(dados);
-      
+
       // Abrir em nova janela para impressão/PDF
       const printWindow = window.open('', '_blank');
       printWindow.document.write(htmlContent);
       printWindow.document.close();
-      
+
       setTimeout(() => {
         printWindow.print();
       }, 500);
-      
+
     } catch (error) {
       console.error('Erro ao exportar PDF:', error);
       alert('Erro ao exportar PDF');
     } finally {
       setLoading(false);
     }
+  };
+
+  const exportarInventarioPDF = () => {
+    if (!inventarioRiscos) return;
+
+    const html = gerarHTMLInventario(inventarioRiscos);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+  };
+
+  const exportarPorSetorPDF = () => {
+    if (!relatorioPorSetor.length) return;
+
+    const html = gerarHTMLPorSetor(relatorioPorSetor);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
+  };
+
+  const exportarAvaliacoesPorSetorPDF = () => {
+    if (!relatorioAvaliacoesPorSetor.length) return;
+
+    const html = gerarHTMLAvaliacoesPorSetor(relatorioAvaliacoesPorSetor);
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => printWindow.print(), 500);
   };
 
   const gerarHTMLParaPDF = (dados) => {
@@ -327,6 +357,45 @@ export function Relatorios() {
       trivial: 'Trivial',
     };
     return traducoes[nivel] || nivel;
+  };
+
+  const gerarHTMLInventario = (dados) => {
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Inventário de Riscos</title>
+    <style>body{font-family:Arial;padding:20px}.header{text-align:center;border-bottom:2px solid #4F46E5;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}
+    th{background:#f3f4f6}</style></head><body><div class="header"><h1>Inventário de Riscos Ergonômicos</h1>
+    <p>Data: ${dataAtual}</p></div><table><thead><tr><th>Data</th><th>Setor</th><th>Título</th><th>Tipo</th><th>Nível de Risco</th></tr></thead>
+    <tbody>${dados.riscos?.map(r => `<tr><td>${new Date(r.data_avaliacao).toLocaleDateString('pt-BR')}</td>
+    <td>${r.setor_nome}</td><td>${r.titulo}</td><td>${r.tipo_avaliacao}</td>
+    <td>${traduzirNivelRisco(r.classificacao_risco)}</td></tr>`).join('')}</tbody></table></body></html>`;
+  };
+
+  const gerarHTMLPorSetor = (dados) => {
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Relatório por Setor</title>
+    <style>body{font-family:Arial;padding:20px}.header{text-align:center;border-bottom:2px solid #4F46E5;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}
+    th{background:#f3f4f6}</style></head><body><div class="header"><h1>Relatório de Riscos por Setor</h1>
+    <p>Data: ${dataAtual}</p></div><table><thead><tr><th>Setor</th><th>Unidade</th><th>Avaliações</th>
+    <th>Intoleráveis</th><th>Substanciais</th><th>Moderados</th></tr></thead><tbody>${dados.map(s =>
+    `<tr><td>${s.setor_nome}</td><td>${s.unidade_nome}</td><td>${s.total_avaliacoes}</td>
+    <td>${s.riscos_intoleraveis}</td><td>${s.riscos_substanciais}</td><td>${s.riscos_moderados}</td></tr>`).join('')}
+    </tbody></table></body></html>`;
+  };
+
+  const gerarHTMLAvaliacoesPorSetor = (dados) => {
+    const dataAtual = new Date().toLocaleDateString('pt-BR');
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Avaliações por Setor</title>
+    <style>body{font-family:Arial;padding:20px}.header{text-align:center;border-bottom:2px solid #4F46E5;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:10px;text-align:left;border-bottom:1px solid #ddd}
+    th{background:#f3f4f6}</style></head><body><div class="header"><h1>Avaliações por Setor</h1>
+    <p>Data: ${dataAtual}</p></div><table><thead><tr><th>Setor</th><th>Título</th><th>Tipo</th><th>Data</th>
+    <th>Classificação</th><th>Status</th></tr></thead><tbody>${dados.map(a =>
+    `<tr><td>${a.setor_nome}</td><td>${a.titulo}</td><td>${a.tipo_avaliacao}</td>
+    <td>${a.data_avaliacao ? new Date(a.data_avaliacao).toLocaleDateString('pt-BR') : 'N/A'}</td>
+    <td>${traduzirNivelRisco(a.classificacao_risco)}</td><td>${a.status || 'Em andamento'}</td></tr>`).join('')}
+    </tbody></table></body></html>`;
   };
 
   if (loading && !estatisticas) {
@@ -569,6 +638,17 @@ export function Relatorios() {
       {/* Inventário de Riscos */}
       {activeTab === 'inventario' && inventarioRiscos && (
         <div className="space-y-6">
+          {/* Botão Exportar */}
+          <div className="flex justify-end">
+            <button
+              onClick={exportarInventarioPDF}
+              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              <Download className="w-5 h-5" />
+              Exportar Inventário (PDF)
+            </button>
+          </div>
+
           {/* Filtros */}
           <div className="bg-white p-4 rounded-lg shadow">
             <div className="flex items-center gap-2 mb-4">
@@ -695,6 +775,16 @@ export function Relatorios() {
 
       {/* Por Setor */}
       {activeTab === 'setores' && (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <button
+              onClick={exportarPorSetorPDF}
+              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              <Download className="w-5 h-5" />
+              Exportar Por Setor (PDF)
+            </button>
+          </div>
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -741,10 +831,21 @@ export function Relatorios() {
             </table>
           </div>
         </div>
+        </div>
       )}
 
       {/* Avaliações por Setor */}
       {activeTab === 'avaliacoes' && (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <button
+              onClick={exportarAvaliacoesPorSetorPDF}
+              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              <Download className="w-5 h-5" />
+              Exportar Avaliações (PDF)
+            </button>
+          </div>
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -798,6 +899,7 @@ export function Relatorios() {
               </tbody>
             </table>
           </div>
+        </div>
         </div>
       )}
 
