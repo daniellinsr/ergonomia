@@ -275,10 +275,10 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
             </div>
           </div>
 
-          {/* Observações Gerais */}
+          {/* Observações sobre o risco/ferramenta utilizada/resultados */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Observações Gerais (opcional)
+              Observações sobre o risco/ferramenta utilizada/resultados (opcional)
             </label>
             <textarea
               name="observacoes_gerais"
@@ -286,7 +286,7 @@ export const NovaAvaliacao = ({ onClose, onSave }) => {
               onChange={handleChange}
               rows={4}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Informações adicionais sobre a avaliação..."
+              placeholder="Informações sobre riscos identificados, ferramentas utilizadas ou resultados obtidos..."
             />
           </div>
 
