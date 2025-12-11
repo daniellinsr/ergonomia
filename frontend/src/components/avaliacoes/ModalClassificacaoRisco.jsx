@@ -355,10 +355,10 @@ export const ModalClassificacaoRisco = ({ avaliacao, perigo, onClose, onSave }) 
             </div>
           )}
 
-          {/* Observações */}
+          {/* Observações sobre o risco/ferramenta utilizada/resultados */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Observações (opcional)
+              Observações sobre o risco/ferramenta utilizada/resultados (opcional)
             </label>
             <textarea
               name="observacoes"
@@ -366,7 +366,7 @@ export const ModalClassificacaoRisco = ({ avaliacao, perigo, onClose, onSave }) 
               onChange={handleChange}
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Informações adicionais sobre este perigo..."
+              placeholder="Informações sobre riscos identificados, ferramentas utilizadas ou resultados obtidos..."
             />
           </div>
 
