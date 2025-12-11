@@ -411,6 +411,9 @@ const relatoriosController = {
       const empresaId = req.user.empresa_id;
       const { data_inicio, data_fim } = req.query;
 
+      console.log('🔍 [Relatório Detalhado] Empresa ID:', empresaId);
+      console.log('🔍 [Relatório Detalhado] Filtros:', { data_inicio, data_fim });
+
       // Query principal para pegar as avaliações
       let query = `
         SELECT
@@ -457,7 +460,9 @@ const relatoriosController = {
         ORDER BY a.data_avaliacao DESC
       `;
 
+      console.log('🔍 [Relatório Detalhado] Executando query...');
       const avaliacoes = await pool.query(query, params);
+      console.log('✅ [Relatório Detalhado] Avaliações encontradas:', avaliacoes.rows.length);
 
       // Para cada avaliação, buscar detalhes dos perigos identificados
       const avaliacoesDetalhadas = await Promise.all(
@@ -487,6 +492,7 @@ const relatoriosController = {
       );
 
       // Estatísticas para os gráficos
+      console.log('🔍 [Relatório Detalhado] Buscando estatísticas...');
       const estatisticas = {
         por_status: await pool.query(
           `SELECT status, COUNT(*) as total
@@ -518,17 +524,26 @@ const relatoriosController = {
         )
       };
 
-      res.json({
+      console.log('✅ [Relatório Detalhado] Estatísticas obtidas');
+      console.log('📊 [Relatório Detalhado] Por status:', estatisticas.por_status.rows);
+      console.log('📊 [Relatório Detalhado] Perigos mais identificados:', estatisticas.perigos_mais_identificados.rows.length);
+      console.log('📊 [Relatório Detalhado] Por tipo:', estatisticas.por_tipo.rows);
+
+      const response = {
         avaliacoes: avaliacoesDetalhadas,
         estatisticas: {
           por_status: estatisticas.por_status.rows,
           perigos_mais_identificados: estatisticas.perigos_mais_identificados.rows,
           por_tipo: estatisticas.por_tipo.rows
         }
-      });
+      };
+
+      console.log('✅ [Relatório Detalhado] Enviando resposta com', avaliacoesDetalhadas.length, 'avaliações');
+      res.json(response);
     } catch (error) {
-      console.error('Erro ao buscar relatório detalhado de avaliações:', error);
-      res.status(500).json({ error: 'Erro ao buscar relatório detalhado de avaliações' });
+      console.error('❌ [Relatório Detalhado] Erro ao buscar relatório detalhado de avaliações:', error);
+      console.error('❌ [Relatório Detalhado] Stack:', error.stack);
+      res.status(500).json({ error: 'Erro ao buscar relatório detalhado de avaliações', details: error.message });
     }
   },
 
