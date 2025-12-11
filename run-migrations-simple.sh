@@ -65,6 +65,7 @@ migrations=(
     "012_create_auditoria_log.sql"
     "013_fix_perigo_61_categoria.sql"
     "014_renumerar_perigos_sequencial.sql"
+    "015_reindexar_por_categoria.sql"
 )
 
 # Executar cada migration
