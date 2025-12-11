@@ -275,6 +275,24 @@ export const PreencherAvaliacao = () => {
             />
           </div>
         </div>
+
+        {/* Descrição */}
+        {avaliacao.descricao && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">Descrição</h3>
+            <p className="text-sm text-blue-800 whitespace-pre-wrap">{avaliacao.descricao}</p>
+          </div>
+        )}
+
+        {/* Observações sobre o risco/ferramenta utilizada/resultados */}
+        {avaliacao.observacoes_gerais && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <h3 className="text-sm font-semibold text-amber-900 mb-2">
+              Observações sobre o risco/ferramenta utilizada/resultados
+            </h3>
+            <p className="text-sm text-amber-800 whitespace-pre-wrap">{avaliacao.observacoes_gerais}</p>
+          </div>
+        )}
       </div>
 
       {/* Lista de Perigos por Categoria */}
