@@ -12,7 +12,11 @@
       "Bash(bash:*)",
       "Bash(docker build:*)",
       "Bash(ls /c/Users/daniel.rodriguez/Documents/pessoal/ergonomia/frontend/.env*)",
-      "Bash(/c/Users/daniel.rodriguez/Documents/pessoal/ergonomia/.env.portainer.example:*)"
+      "Bash(/c/Users/daniel.rodriguez/Documents/pessoal/ergonomia/.env.portainer.example:*)",
+      "Bash(git -C /c/Users/daniel.rodriguez/Documents/pessoal/ergonomia ls-files backend/node_modules)",
+      "Bash(git -C /c/Users/daniel.rodriguez/Documents/pessoal/ergonomia rm -r --cached frontend/node_modules backend/node_modules)",
+      "Bash(git -C /c/Users/daniel.rodriguez/Documents/pessoal/ergonomia status --short)",
+      "Bash(git -C:*)"
     ],
     "deny": [],
     "ask": []
