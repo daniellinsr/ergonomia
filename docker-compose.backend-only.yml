@@ -18,7 +18,7 @@ networks:
 
 services:
   backend:
-    image: daniellinsr/ergonomia-backend:latest
+    image: ghcr.io/daniellinsr/ergonomia-backend:latest
     restart: unless-stopped
     environment:
       NODE_ENV: production
