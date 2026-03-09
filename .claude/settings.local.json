@@ -10,7 +10,9 @@
       "Bash(git push:*)",
       "Bash(npm run build:*)",
       "Bash(bash:*)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(ls /c/Users/daniel.rodriguez/Documents/pessoal/ergonomia/frontend/.env*)",
+      "Bash(/c/Users/daniel.rodriguez/Documents/pessoal/ergonomia/.env.portainer.example:*)"
     ],
     "deny": [],
     "ask": []
