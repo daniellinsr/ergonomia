@@ -60,7 +60,7 @@ services:
       - "traefik.http.routers.ergonomia-api.rule=Host(`${TRAEFIK_API_HOST:-api.ergonomia.helthcorp.com.br}`)"
       - "traefik.http.routers.ergonomia-api.entrypoints=websecure"
       - "traefik.http.routers.ergonomia-api.tls=true"
-      - "traefik.http.routers.ergonomia-api.tls.certresolver=lets-encrypt"
+      - "traefik.http.routers.ergonomia-api.tls.certresolver=letsencrypt"
 
       # Serviço aponta para a porta 3001 do backend
       - "traefik.http.services.ergonomia-api.loadbalancer.server.port=3001"
